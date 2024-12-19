@@ -4,62 +4,79 @@ from numpy import linspace, cos, sin
 
 # couleurs
 
-BLACK = (0, 0, 0)
-GRAY = (150, 127, 127)
-WHITE = (255, 255, 255)
-
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-
-YELLOW = (255, 255, 0) 
-CYAN = (0, 255, 255) #Bleu très clair
-MAGENTA = (255, 0, 255) #Violet pétant
-
-PINK = (255,0,128) #Rose
-PINK2 = (255, 20, 147) #Rose fluo
-PINK3 = (255, 192, 203)
-
-C1_GREEN = (204, 255, 204) #Vert très clair
-C1_BLUE = (153, 204, 255) #Bleu ciel -> couleur de l'écran
-bgColor = (127,127,255) #Bleu sympa
-
-VERT = (0,200,0)
-JAUNE = YELLOW
-ORANGE = (255,130,0)
-ROUGE = RED
-MARRON = (110,42,42)
-NOIR = BLACK
-
-CYAN = CYAN
-ROSE_CLAIR = (255,182,193)
-ROSE_FONCE = PINK
-VIOLET_FONCE = (148,0,211)
-BLEU = BLUE
-BLEU_FONCE = (0,0,150)
-GRIS_CLAIR = (200,200,200)
-VERT_CLAIR = (150,255,150)
-
-SAUGE_LOANN = (146,166,157)
-ROSE_POUDREE = (204,153,159)
-BLEU_JOLI = (169,184,204)
+def couleur(color):
+    match color:
+        case "BLACK":
+            return (0, 0, 0)
+        case "GRAY":
+            return (150, 127, 127)
+        case "WHITE":
+            return (255, 255, 255)
+        case "RED":
+            return (255, 0, 0)
+        case "GREEN":
+            return (0, 255, 0)
+        case "BLUE":
+            return (0, 0, 255)
+        case "YELLOW":
+            return (255, 255, 0)
+        case "CYAN":
+            return (0, 255, 255)
+        case "MAGENTA":
+            return (255, 0, 255)
+        case "PINK":
+            return (255, 0, 128)
+        case "PINK2":
+            return (255, 20, 147)
+        case "PINK3":
+            return (255, 192, 203)
+        case "C1_GREEN":
+            return (204, 255, 204)
+        case "C1_BLUE":
+            return (153, 204, 255)
+        case "BG_COLOR":
+            return (127, 127, 255)
+        case "VERT":
+            return (0, 200, 0)
+        case "ORANGE":
+            return (255, 130, 0)
+        case "MARRON":
+            return (110, 42, 42)
+        case "ROSE_CLAIR":
+            return (255, 182, 193)
+        case "VIOLET_FONCE":
+            return (148, 0, 211)
+        case "BLEU_FONCE":
+            return (0, 0, 150)
+        case "GRIS_CLAIR":
+            return (200, 200, 200)
+        case "VERT_CLAIR":
+            return (150, 255, 150)
+        case "SAUGE_LOANN":
+            return (146, 166, 157)
+        case "ROSE_POUDREE":
+            return (204, 153, 159)
+        case "BLEU_JOLI":
+            return (169, 184, 204)
+        case _:
+            raise ValueError(f"Unknown color name: {color}")
 
 init() #on initialise tout
 
 # fonctions d'affichage
 
-def ecriture(phrase,couleur,taille,position):
+def ecriture(phrase,color,taille,position):
     '''
     entrée :
         phrase : le texte
-        couleur : la couleur du texte
+        color : la couleur du texte
         taille : la taille de la police
         position = (x,y) : la position du centre du texte
     effet : 
-        ecrit ce qu'il faut où il faut    
+        ecrit la phrase en color à position   
     '''
     police = font.SysFont("Courier New", taille) #donner une forme à la police d'écriture
-    string_rendu = police.render(phrase, True,couleur)     # Rendu du texte avec la police choisie
+    string_rendu = police.render(phrase, True,color)     # Rendu du texte avec la police choisie
     position_string = string_rendu.get_rect(center=position) #positionement du texte dans la fenêtre.
     screen.blit(string_rendu, position_string) #texte début de question
      
@@ -76,13 +93,13 @@ def cercles(r1,r2,p,couleur_g_cercle,couleur_p_cercle,couleur_rendu,couleur_fond
     '''
     draw.rect(screen,couleur_fond,[window_width/2,0,window_width/2,window_height],0)
     if r1 > window_height/4 :
-        ecriture("Rayon trop grand",RED,int(police_taille*1.3),(3*window_width/4,window_height/2))
+        ecriture("Rayon trop grand",couleur("RED"),int(police_taille*1.3),(3*window_width/4,window_height/2))
     elif r2 > r1 :
-        ecriture("Petit rayon plus grand",RED,int(police_taille),(3*window_width/4,3*window_height/8))
-        ecriture("que le grand rayon",RED,int(police_taille),(3*window_width/4,5*window_height/8))
+        ecriture("Petit rayon plus grand",couleur("RED"),int(police_taille),(3*window_width/4,3*window_height/8))
+        ecriture("que le grand rayon",couleur("RED"),int(police_taille),(3*window_width/4,5*window_height/8))
     elif p > r2 :
-        ecriture("Point en dehors",RED,int(police_taille*1.3),(3*window_width/4,3*window_height/8))
-        ecriture("du petit cercle",RED,int(police_taille*1.3),(3*window_width/4,5*window_height/8))
+        ecriture("Point en dehors",couleur("RED"),int(police_taille*1.3),(3*window_width/4,3*window_height/8))
+        ecriture("du petit cercle",couleur("RED"),int(police_taille*1.3),(3*window_width/4,5*window_height/8))
     else :
         centre_g_x = 3*window_width/4
         centre_g_y = window_height/4
@@ -127,13 +144,13 @@ def zoom_cercles(r1,r2,p,couleur_g_cercle,couleur_p_cercle,couleur_rendu,couleur
     '''
     screen.fill(couleur_fond)
     if r1 > window_height :
-        ecriture("Rayon trop grand",RED,int(police_taille*2.6),(window_width/2,window_height/2))
+        ecriture("Rayon trop grand",couleur("RED"),int(police_taille*2.6),(window_width/2,window_height/2))
     elif r2 > r1 :
-        ecriture("Petit rayon plus grand",RED,int(police_taille*2.6),(window_width/2,3*window_height/8))
-        ecriture("que le grand rayon",RED,int(police_taille*2.6),(window_width/2,5*window_height/8))
+        ecriture("Petit rayon plus grand",couleur("RED"),int(police_taille*2.6),(window_width/2,3*window_height/8))
+        ecriture("que le grand rayon",couleur("RED"),int(police_taille*2.6),(window_width/2,5*window_height/8))
     elif p > r2 :
-        ecriture("Point en dehors",RED,int(police_taille*2.6),(window_width/2,3*window_height/8))
-        ecriture("du petit cercle",RED,int(police_taille*2.6),(window_width/2,5*window_height/8))
+        ecriture("Point en dehors",couleur("RED"),int(police_taille*2.6),(window_width/2,3*window_height/8))
+        ecriture("du petit cercle",couleur("RED"),int(police_taille*2.6),(window_width/2,5*window_height/8))
     else :
         centre_g_x = window_width/2
         centre_g_y = window_height/2
@@ -177,29 +194,31 @@ def champ(num_champ):
     current_line_x = window_width/8
     height = window_height/15
     width = window_width/4
-    draw.rect(screen,WHITE,[current_line_x,(num_champ)*espace+current_line1_y,width,height])
-    draw.rect(screen,BLACK,[current_line_x,(num_champ)*espace+current_line1_y,width,height],2)
+    draw.rect(screen,couleur("WHITE"),[current_line_x,(num_champ)*espace+current_line1_y,width,height])
+    draw.rect(screen,couleur("BLACK"),[current_line_x,(num_champ)*espace+current_line1_y,width,height],2)
 
-def ecritures():
+def ecritures_param():
     '''
     effet : afficher les écritures de la page du spinographe en 2D
     '''
-    ecriture("Saisie des paramètres",BLACK,police_taille,(window_width/4,window_height/8))
-    ecriture("Rayon du grand cercle",BLACK,int(3/5*police_taille),(window_width/4,window_height/4))
-    ecriture("Rayon du petit cercle",BLACK,int(3/5*police_taille),(window_width/4,window_height/2))
-    ecriture("Distance au centre   ",BLACK,int(3/5*police_taille),(window_width/4,3*window_height/4))
-    ecriture("R max = 100",BLACK,int(3/5*police_taille),(window_width/4,window_height/4+5*window_height/32))
-    ecriture(" r max = R ",BLACK,int(3/5*police_taille),(window_width/4,window_height/2+5*window_height/32))
-    ecriture(" d max = r ",BLACK,int(3/5*police_taille),(window_width/4,3*window_height/4+5*window_height/32))
+    ecriture("Saisie des paramètres",couleur("BLACK"),police_taille,(window_width/4,window_height/8))
+    ecriture("Rayon du grand cercle",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/4))
+    ecriture("Rayon du petit cercle",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/2))
+    ecriture("Distance au centre   ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,3*window_height/4))
+    ecriture("R max = 100",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/4+5*window_height/32))
+    ecriture(" r max = R ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/2+5*window_height/32))
+    ecriture(" d max = r ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,3*window_height/4+5*window_height/32))
 
 def bouton_gcode(pos):
     '''
     entrée :
         pos = (x,y) : la position du curseur
     effet :
-        affiche le bouton G CODE 
+        affiche le bouton G CODE :
             en blanc si le curseur n'est pas dessus
             en vert à l'inverse
+    sortie : 
+        renvoie True si le curseur est sur le bouton, False sinon
     '''
     res = False
     (cursor_x, cursor_y) = pos
@@ -207,16 +226,16 @@ def bouton_gcode(pos):
     height = police_taille
     pos_x = window_width/2
     pos_y = 9*window_height/10
-    draw.rect(screen,BLACK,[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
+    draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
     if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
-        draw.rect(screen,GREEN,[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
-        ecriture("G CODE",GREEN,police_taille,(pos_x,pos_y))
+        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture("G CODE",couleur("GREEN"),police_taille,(pos_x,pos_y))
         res = True
 
     else :
-        draw.rect(screen,WHITE,[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
-        ecriture("G CODE",WHITE,police_taille,(pos_x,pos_y))
-    return True
+        draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture("G CODE",couleur("WHITE"),police_taille,(pos_x,pos_y))
+    return res
 
 def points (theta_max, N, petit_r, grand_r, p) :
     '''
@@ -228,6 +247,7 @@ def points (theta_max, N, petit_r, grand_r, p) :
         p : distance entre le centre du petit cercle et le point P
     effet : 
         calcule les N points du rendu
+    Sortie : renvoie les N points du rendu
     '''
     theta = linspace(0.0, theta_max, N)
     diff_r = grand_r - petit_r
@@ -250,7 +270,7 @@ def rendu(r1,r2,p,couleur_rendu):
         p : distance entre le centre du petit cercle et le point P
         couleur_rendu : la couleur du rendu
     effet :
-        affiche le rendu
+        affiche le rendu et le bouton_gcode
     '''
     centre_x, centre_y = 3*window_width/4,3*window_height/4
     if not (r1 > window_height/4 or r2 >= r1 or p > r2) : 
@@ -271,15 +291,15 @@ def menu_cercle_dans_cercle_init(lines):
     taille_carac = 3/5*police_taille
     screen.fill(couleur_fond)
     draw.rect(screen,couleur_param,[0,0,window_width/2,window_height],0)
-    ecritures()
+    ecritures_param()
     modifie_rayons(lines)
     # ecrit_init :
     for i in range(3):
         ecrit(i)
         if i != current_line:
-            draw.rect(screen,WHITE,[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
     ecrit(current_line)
-    curseurs_init(lines)
+    curseurs_init()
     return_arrow((0,0))
 
 def zoom_schema(lines):
@@ -324,6 +344,9 @@ def zoom_rendu(lines):
         run_zoom_rendu = False
     
 def menu_choix():
+    '''
+    effet : affiche le menu de choix du format du mandala
+    '''
     global run_zoom_rendu,couleur_g_cercle,couleur_p_cercle,couleur_fond
     screen.fill(couleur_fond)
     r1 = 50*(window_height/2)/100
@@ -339,11 +362,18 @@ def menu_choix():
     else :
         run_zoom_rendu = False
     
-def curseurs_init(lines):
+def curseurs_init():
+    '''
+    effet : affiche les 3 curseurs
+    '''
     for num_champ in range(3):
         curseur(num_champ)    
 
 def curseur(num_champ):
+    '''
+    entrée : num_champ = le numéro du curseur
+    effet : affiche le curseur numéro "num_champ" en fonction de la valeur du champ
+    '''
     global couleur_g_cercle,couleur_p_cercle, couleur_rendu, lines
     espace = window_height/4
     current_line1_y = 9*window_height/32
@@ -364,7 +394,7 @@ def curseur(num_champ):
         coord = (pos_x-width/2 + param/100*width,pos_y+1)
         draw.rect(screen,couleur_param,[pos_x - width/2 - 5,pos_y-6,width + 10,12],0)
         draw.rect(screen,couleur_curseur,[pos_x - width/2,pos_y,width,2],0)
-        draw.circle(screen,BLACK,coord,5)
+        draw.circle(screen,couleur("BLACK"),coord,5)
         draw.circle(screen,couleur_curseur,coord,3)
 
     else : 
@@ -372,7 +402,18 @@ def curseur(num_champ):
 
 def draw_arrow(surface, color, start_pos, width, height):
     '''
-    dessine une flèche de la couleur color, de centre start_pos, de longueur width, de hauteur height (body) et de hauteur de triangle 3*height/2
+    entrée :
+        surface : l'écran
+        color : la couleur de la flèche
+        start_pos : les coordonées du centre de la flèche
+        width : la longueur de la flèche
+        height : la hauteu de la flèche
+    effet : 
+        dessine une flèche de la couleur color, 
+        de centre start_pos, 
+        de longueur width, 
+        de hauteur height (body) et 
+        de hauteur de triangle 3*height/2
     '''
     # Points pour créer une flèche pointant vers la droite
     (x,y) = start_pos
@@ -403,19 +444,22 @@ def return_arrow(pos):
     height = window_height/16
     coord = x,y = (window_width/20,window_height/20)
     if pos[0] < x + width/2 and pos[0] > x - width/2 and pos[1] < y + height/2 and pos[1] > y - height/2:
-        color_arrow = GREEN
+        color_arrow = couleur("GREEN")
         res = True
     else : 
-        color_arrow = GRIS_CLAIR 
-    draw.rect(screen,BLACK,[x-width/2,y-height/2,width,height],0,int((height+width)/10))
+        color_arrow = couleur("GRIS_CLAIR") 
+    draw.rect(screen,couleur("BLACK"),[x-width/2,y-height/2,width,height],0,int((height+width)/10))
     draw.rect(screen,color_arrow,[x-width/2,y-height/2,width,height],2,int((height+width)/10))
     draw_arrow(screen,color_arrow,coord,width/2,height/3)
     return res
 
 def bouge_curseur(coord,dragging):
     '''
-    entrée : les coordonnées de la souris, dragging = le numéro du champ dont le curseur est associé
-    effet : met à jour la position du curseur et met à jour le champ
+    entrée : 
+        les coordonnées de la souris, 
+        dragging = le numéro du champ dont le curseur est associé
+    effet : 
+        met à jour la position du curseur et met à jour le champ
     '''
 
     # set les variables dont j'ai besoin
@@ -458,7 +502,16 @@ def input_to_text(event):
             - ESCAPE
             - any letter
     effet : 
-        met à jour la position du curseur et le contenu du champ
+        Tout ceci n'est pas affiché, la fonction ecrit se charge de l'affichage
+        - BACKSPACE : efface le caractère à gauche du curseur
+        - RETURN : place le curseur à la fin du champ suivant (le 0 quand on est sur le 2)
+        - UP : augmente de 1 la valeur du champ
+        - DOWN : diminue de 1 la valeur du champ
+        - LEFT : déplace le curseur sur la gauche
+        - RIGHT : déplace le curseur sur la droite
+        - TAB : passe au champs suivant ou au champ précédent
+        - ESCAPE : revient au menu précédent (met run_visu_2D à False)
+        - any letter : écrit la touche qu'on vient de taper
     '''
     global current_line, lines, cursor_position, key_press_times, run_visu_2D
     taille_carac = 3/5 * police_taille
@@ -478,24 +531,24 @@ def input_to_text(event):
     elif event.key == K_RETURN:
         # Si 'Entrée' est appuyé,
         if current_line < 2:
-            draw.rect(screen,WHITE,[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
             current_line += 1
             cursor_position = len(lines[current_line])
         else :
-            draw.rect(screen,WHITE,[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
             current_line = 0
             cursor_position = len(lines[current_line])
     elif event.key == K_ESCAPE:
         run_visu_2D = False
     elif event.key == K_TAB and (keys[K_LSHIFT] or keys[K_RSHIFT]):
         if current_line > 0:
-            draw.rect(screen,WHITE,[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
             current_line -=1
             cursor_position = len(lines[current_line])
     elif event.key == K_TAB:
         #si on appuie sur la touche du bas, on passe à la ligne suivante :
         if current_line < 2:
-            draw.rect(screen,WHITE,[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
             current_line += 1
             cursor_position = len(lines[current_line])
     elif event.key == K_UP :
@@ -536,7 +589,7 @@ def ecrit(num_champ):
     entrée :
         num_champ : numéro du champ
     effet :
-        affiche le contenu du champ numéro "current_line"
+        met à jour le contenu du champ numéro "current_line"
     '''
     global cursor_position
     espace = window_height/4 # Espace entre chaque current_line en pixels
@@ -547,9 +600,9 @@ def ecrit(num_champ):
     indent_x,indent_y = current_line_x + spacing,current_line1_y # position
     champ(num_champ)
     # Rendre et afficher chaque ligne de texte
-    txt_surf = police.render(lines[num_champ], True, BLACK)
+    txt_surf = police.render(lines[num_champ], True, couleur("BLACK"))
     screen.blit(txt_surf, (indent_x, indent_y + num_champ*espace))
-    draw.rect(screen,BLACK,[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+    draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
     curseur(num_champ)
     display.update()
 
@@ -573,7 +626,7 @@ def modifie_rayons(lines):
     effet :
         vérifie que le contenu des champs est suffisant pour faire un rendu
         si c'est le cas :
-            normalise les valeurs selon la taille de l'écran
+            normalise les valeurs sur 100 selon la taille de l'écran
             affiche le rendu et le schéma
     '''
     if is_float(lines[0]) and is_float(lines[1]) and is_float(lines[2]):
@@ -618,13 +671,13 @@ def clic(coord):
     for i in range(3):
         if (coord_x > current_line_x and coord_x < current_line_x  + width and coord_y > (i*espace)+current_line1_y and coord_y < (i*espace)+current_line1_y+height) :
             # je suis dans le champ i
-            draw.rect(screen,WHITE,[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,taille_curseur],0)
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,taille_curseur],0)
             current_line = i
             cursor_position = len(lines[current_line])
             for carac in range(len(lines[current_line])):
                 if (coord_x < current_line_x + (len(lines[current_line])-carac)*taille_carac) :
                     cursor_position = len(lines[current_line])-carac - 1
-            draw.rect(screen,BLACK,[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,taille_curseur],0)
+            draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,taille_curseur],0)
         
         # Vérifie si le clic est sur un curseur
         if coord_y > (i)*espace+current_line1_y + 2 * window_height/32 and coord_y < (i)*espace+current_line1_y + 4 * window_height/32 :
@@ -674,7 +727,7 @@ size = window_width, window_height #pour choisir la taille de la fenêtre
 screen = display.set_mode(size) # pour créer une fenêtre de la taille souhaitée
 display.set_caption('génération de gcode pour un spirographe') #donner un nom affiché à cette fenêtre.
 display.update() #mettre à jour les données de l'affichage
-screen.fill(BLEU_JOLI) #pour choisir la couleur du fond de la fenêtre
+screen.fill(couleur("BLEU_JOLI")) #pour choisir la couleur du fond de la fenêtre
 
 
 # Variables globales
@@ -684,11 +737,11 @@ character_limit = 7  # Limite de caractères par ligne
 lines = ['75','40','20']  # Liste des lignes de texte
 current_line = 0  # Index de la ligne courante
 cursor_position = 2
-couleur_g_cercle = ROUGE
-couleur_p_cercle = BLEU_FONCE
-couleur_rendu = WHITE
-couleur_fond = C1_BLUE
-couleur_param = BLEU_JOLI
+couleur_g_cercle = couleur("RED")
+couleur_p_cercle = couleur("BLEU_FONCE")
+couleur_rendu = couleur("WHITE")
+couleur_fond = couleur("C1_BLUE")
+couleur_param = couleur("BLEU_JOLI")
 dragging = -1
 
 run = True
