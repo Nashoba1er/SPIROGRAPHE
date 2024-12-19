@@ -30,7 +30,7 @@ Ce projet est une application graphique interactive écrite en Python avec la bi
   - Survolez les boutons pour les surligner.
   - Faites glisser les curseurs pour ajuster les paramètres.
 - **Clavier**:
-  - Appuyez sur « Entrée » pour valider les paramètres et visualiser les changements.
+  - Appuyez sur « Tab » pour naviguer rapidement entre les champs
   - Utilisez les flèches haut/bas pour ajuster les paramètres numériques.
 
 ### Génération de fichiers G-code
@@ -38,34 +38,6 @@ Ce projet est une application graphique interactive écrite en Python avec la bi
 
 ---
 
-## Structure du projet
-
-### Fonctions principales
-
-#### Visualisation
-- **`cercles`** : Affiche le schéma du spirographe avec les deux cercles et le point P.
-- **`zoom_cercles`** : Affiche une vue agrandie du schéma.
-- **`rendu`** : Dessine le motif décrit par le point P.
-- **`zoom_rendu`** : Affiche une vue agrandie du motif.
-
-#### Interactions
-- **`clic`** : Gère les clics de souris pour changer de mode ou ajuster les paramètres.
-- **`bouge_curseur`** : Permet de déplacer un curseur pour ajuster un paramètre.
-- **`input_to_text`** : Gère l’entrée clavier pour modifier les champs de texte.
-
-#### Navigation
-- **`menu_cercle_dans_cercle_init`** : Initialise le menu pour visualiser le spirographe.
-- **`menu_choix`** : Affiche le menu principal.
-
-### Variables globales
-- **Paramètres des cercles**:
-  - `r1`, `r2`, `p` : Rayons des cercles et distance du point P.
-- **Couleurs**:
-  - Différentes couleurs pour les éléments graphiques (« ROUGE », « BLEU_FONCÉ », etc.).
-- **États de l’application**:
-  - Variables comme `run`, `run_visu_2D`, `run_zoom_schema` pour gérer les différents modes d’exécution.
-
----
 
 ## Installation et exécution
 
@@ -86,24 +58,17 @@ Ce projet est une application graphique interactive écrite en Python avec la bi
 ### Exécution
 Lancez le script principal :
 ```bash
-python main.py
+python "logiciel spirographe.py"
 ```
 
 ---
 
 ## Améliorations futures
 - Ajout de la fonctionnalité de génération de fichiers G-code.
-- Optimisation des performances pour le rendu graphique.
-- Support pour différents types de spirographes.
+- Ajout de la fonctionnalité spirographe sur une demi-sphère
 - Interface utilisateur améliorée.
 
 ---
 
 ## Contributeurs
-- **Votre nom ou pseudonyme**
-
----
-
-## Licence
-Ce projet est sous licence MIT. Consultez le fichier `LICENSE` pour plus d’informations.
-
+- **Antoine Dumont, Julien Chantail, Papis Diop**
