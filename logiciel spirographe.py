@@ -221,20 +221,21 @@ def bouton_gcode(pos):
         renvoie True si le curseur est sur le bouton, False sinon
     '''
     res = False
+    message = "G CODE"
     (cursor_x, cursor_y) = pos
-    width = police_taille*3/5*7
+    width = police_taille*3/5*(len(message)+1)
     height = police_taille
     pos_x = window_width/2
     pos_y = 9*window_height/10
     draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
     if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
         draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
-        ecriture("G CODE",couleur("GREEN"),police_taille,(pos_x,pos_y))
+        ecriture(message,couleur("GREEN"),police_taille,(pos_x,pos_y))
         res = True
 
     else :
         draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
-        ecriture("G CODE",couleur("WHITE"),police_taille,(pos_x,pos_y))
+        ecriture(message,couleur("WHITE"),police_taille,(pos_x,pos_y))
     return res
 
 def points (theta_max, N, petit_r, grand_r, p) :
@@ -342,26 +343,7 @@ def zoom_rendu(lines):
             draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),1)
     else :
         run_zoom_rendu = False
-    
-def menu_choix():
-    '''
-    effet : affiche le menu de choix du format du mandala
-    '''
-    global run_zoom_rendu,couleur_g_cercle,couleur_p_cercle,couleur_fond
-    screen.fill(couleur_fond)
-    r1 = 50*(window_height/2)/100
-    r2 = 31.25*(window_height/2)/100
-    p = 25*(window_height/2)/100
-    centre_x, centre_y = window_width/2,window_height/2
-    if not (r1 > window_height/2 or r2 >= r1 or p > r2) : 
-        screen.fill(couleur_fond)
-        #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
-        point_x, point_y = points(6000.0, 10000, r1, r2, p)
-        for i in range(10000):
-            draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),2)
-    else :
-        run_zoom_rendu = False
-    
+     
 def curseurs_init():
     '''
     effet : affiche les 3 curseurs
@@ -684,7 +666,6 @@ def clic(coord):
             # je suis à hauteur du curseur
             if coord_x > current_line_x and coord_x < current_line_x  + width :
                 dragging = i  # On commence à déplacer l'objet
-                print("prout",i)
     #clic sur le shéma
     if (coord_x > window_width/2 and coord_y < window_height/2):
         run_zoom_schema = True 
@@ -703,7 +684,259 @@ def clic(coord):
 
 #fonctions pour le menu principal :
 
+def menu_choix():
+    '''
+    effet : affiche le menu de choix du format du mandala
+    '''
+    global screen,couleur_g_cercle,couleur_p_cercle,couleur_fond,couleur_rendu,police_taille
+    screen.fill(couleur_fond)
+    r1 = 50*(window_height/2)/100
+    r2 = 31.25*(window_height/2)/100
+    p = 25*(window_height/2)/100
+    centre_x, centre_y = window_width/2,window_height/2
+    screen.fill(couleur_fond)
+    point_x, point_y = points(6000.0, 10000, r1, r2, p)
+    for i in range(10000):
+        draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),2)
 
+    ecriture("SPIROGRAPHE",couleur_rendu,police_taille*2, (window_width/2,window_height/8))
+    #affiche les boutons sans les considérer commme sélectionné
+    bouton_cdc((0,0))
+    bouton_cdc3D((0,0))
+    bouton_couleur((0,0))
+    bouton_ede((0,0))
+   
+def bouton_cdc(pos):
+    '''
+    entrée :
+        pos = (x,y) : la position du curseur
+    effet :
+        affiche le bouton Cercle dans Cercle :
+            en blanc si le curseur n'est pas dessus
+            en vert à l'inverse
+    sortie : 
+        renvoie True si le curseur est sur le bouton, False sinon
+    '''
+    res = False
+    message = "Cercle dans Cercle"
+    (cursor_x, cursor_y) = pos
+    width = police_taille*3/5*(len(message)+1)
+    height = police_taille
+    pos_x = 8*window_width/10
+    pos_y = 3*window_height/10
+    draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
+    if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
+        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("GREEN"),police_taille,(pos_x,pos_y))
+        res = True
+
+    else :
+        draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("WHITE"),police_taille,(pos_x,pos_y))
+    return res
+
+def bouton_cdc3D(pos):
+    '''
+    entrée :
+        pos = (x,y) : la position du curseur
+    effet :
+        affiche le bouton Cercle dans Cercle :
+            en blanc si le curseur n'est pas dessus
+            en vert à l'inverse
+    sortie : 
+        renvoie True si le curseur est sur le bouton, False sinon
+    '''
+    res = False
+    message = "demi-sphère"
+    (cursor_x, cursor_y) = pos
+    width = police_taille*3/5*(len(message)+1)
+    height = police_taille
+    pos_x = 2*window_width/10
+    pos_y = 4*window_height/10
+    draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
+    if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
+        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("GREEN"),police_taille,(pos_x,pos_y))
+        res = True
+
+    else :
+        draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("WHITE"),police_taille,(pos_x,pos_y))
+    return res
+
+def bouton_couleur(pos):
+    '''
+    entrée :
+        pos = (x,y) : la position du curseur
+    effet :
+        affiche le bouton Couleur :
+            en blanc si le curseur n'est pas dessus
+            en vert à l'inverse
+    sortie : 
+        renvoie True si le curseur est sur le bouton, False sinon
+    '''
+    res = False
+    message = "Couleurs"
+    (cursor_x, cursor_y) = pos
+    width = police_taille*3/5*(len(message)+1)
+    height = police_taille
+    pos_x = 8*window_width/10
+    pos_y = 6*window_height/10
+    draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
+    if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
+        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("GREEN"),police_taille,(pos_x,pos_y))
+        res = True
+
+    else :
+        draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("WHITE"),police_taille,(pos_x,pos_y))
+    return res
+
+def bouton_ede(pos):
+    '''
+    entrée :
+        pos = (x,y) : la position du curseur
+    effet :
+        affiche le bouton Ellipse dans Ellipse :
+            en blanc si le curseur n'est pas dessus
+            en vert à l'inverse
+    sortie : 
+        renvoie True si le curseur est sur le bouton, False sinon
+    '''
+    res = False
+    message = "Ellipse dans Ellipse"
+    (cursor_x, cursor_y) = pos
+    width = police_taille*3/5*(len(message)+1)
+    height = police_taille
+    pos_x = 3*window_width/10
+    pos_y = 8*window_height/10
+    draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
+    if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
+        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("GREEN"),police_taille,(pos_x,pos_y))
+        res = True
+
+    else :
+        draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("WHITE"),police_taille,(pos_x,pos_y))
+    return res
+
+def clic_menu(pos):
+    '''
+    entrée :
+        coord = (x,y) : l'endroit du clic
+    effet :
+        si on clique :
+            sur le bouton cercle dans cercle : met run_visu_2D à True
+    '''
+    global run_visu_2D, run_couleur, run_cdc3D, run_ede
+
+    if bouton_cdc(pos):
+        run_visu_2D = True
+
+    if bouton_couleur(pos):
+        run_couleur = True
+
+    if bouton_cdc3D(pos):
+        run_cdc3D = True
+
+    if bouton_ede(pos):
+        run_ede = True
+    
+
+#fonctions pour le menu couleur :
+
+def menu_couleur():
+    '''
+    effet :
+        - affiche des boutons pour changer les couleurs de fond
+        - affiche des boutons indiquant les couleurs pour le rendu
+    '''
+    global couleur_rendu,couleur_fond
+    screen.fill(couleur_fond)
+    return_arrow((0,0))
+
+    ecriture("Couleur du fond",couleur("WHITE"),police_taille,(window_width/4,window_height/4))
+    ecriture("Couleur du rendu",couleur("WHITE"),police_taille,(3*window_width/4,window_height/4))
+    
+    taille = window_width/16
+
+    draw.rect(screen,couleur_rendu,[window_width/4-taille/2-1,window_height/4+taille-1,taille+2,taille+2],2)
+    draw.rect(screen,couleur_rendu,[3*window_width/4-taille/2,window_height/4+taille,taille,taille],0)
+
+    # couleurs au choix :
+
+  
+    draw.rect(screen,couleur("WHITE"),[window_width/8 + 0 * taille * 3/2,window_height/2+taille,taille,taille])
+    draw.rect(screen,couleur("WHITE"),[window_width/8 + 1 * taille * 3/2,window_height/2+taille,taille,taille])
+    draw.rect(screen,couleur("BLACK"),[window_width/8 + 2 * taille * 3/2,window_height/2+taille,taille,taille])
+
+    draw.rect(screen,couleur("WHITE"),[window_width/8 + 0 * taille * 3/2,window_height/2+5*taille/2,taille,taille])
+    draw.rect(screen,couleur("WHITE"),[window_width/8 + 1 * taille * 3/2,window_height/2+5*taille/2,taille,taille])
+    draw.rect(screen,couleur("BLACK"),[window_width/8 + 2 * taille * 3/2,window_height/2+5*taille/2,taille,taille])
+
+
+def survole_bouton(coord):
+    '''
+    entrée : les coordonnées de la souris
+    effet : entoure en vert les boutons de couleur que le curseur survole
+    '''
+    return_arrow(coord)
+
+def clic_couleur(coord):
+    '''
+    entrée : les coordonnées du clic
+    effet : change la couleur selon le clic
+    '''
+    global run_couleur
+    if return_arrow(coord):
+        run_couleur = False
+    
+
+#fonctions pour le menu demi-sphère :
+
+def menu_cdc3D():
+    '''
+    effet :
+        - affiche des boutons pour changer les couleurs de fond
+        - affiche des boutons indiquant les couleurs pour le rendu
+    '''
+    screen.fill(couleur_fond)
+    return_arrow((0,0))
+    ecriture("à implémenter",couleur("RED"),police_taille,(window_width/2 , window_height/2))
+
+def clic_cdc3D(coord):
+    '''
+    entrée : les coordonnées du clic
+    effet : change la couleur selon le clic
+    '''
+    global run_cdc3D
+    if return_arrow(coord):
+        run_cdc3D = False
+    
+
+#fonctions pour le menu ellipse dans ellipse
+
+def menu_ede():
+    '''
+    effet :
+        - affiche des boutons pour changer les couleurs de fond
+        - affiche des boutons indiquant les couleurs pour le rendu
+    '''
+    screen.fill(couleur_fond)
+    ecriture("à implémenter",couleur("RED"),police_taille,(window_width/2 , window_height/2))
+    return_arrow((0,0))
+
+def clic_ede(coord):
+    '''
+    entrée : les coordonnées du clic
+    effet : change la couleur selon le clic
+    '''
+    global run_ede
+    if return_arrow(coord):
+        run_ede = False
+ 
 
 ## affichage
 
@@ -748,59 +981,109 @@ run = True
 run_visu_2D = False
 run_zoom_schema = False
 run_zoom_rendu = False
+run_couleur = False
+run_cdc3D = False
+run_ede = False
+
+menu_choix()
+
 
 while run :
-    menu_choix()
     for pyEvent in event.get():
         if pyEvent.type == QUIT:
             run = False
-        if pyEvent.type == KEYDOWN :
-            if pyEvent.key == K_RETURN:
+        if pyEvent.type == MOUSEMOTION :
+            bouton_cdc(pyEvent.pos)
+            bouton_cdc3D(pyEvent.pos)
+            bouton_couleur(pyEvent.pos)
+            bouton_ede(pyEvent.pos)
+        if pyEvent.type == MOUSEBUTTONDOWN :
+            clic_menu(pyEvent.pos)
+            if run_visu_2D : 
                 menu_cercle_dans_cercle_init(lines)
-                run_visu_2D = True
-                while run_visu_2D : 
-                    for pyEvent in event.get():
-                        if pyEvent.type == QUIT:
-                            run_visu_2D = False
-                            run = False
-                        if pyEvent.type == MOUSEBUTTONDOWN:
-                            clic(pyEvent.pos)
-                            while run_zoom_schema :
-                                zoom_schema(lines)
-                                for pyEvent in event.get():
-                                    if pyEvent.type == QUIT :
-                                        run_visu_2D = False
-                                        run_zoom_schema = False
-                                    if pyEvent.type == MOUSEBUTTONDOWN :
-                                        run_zoom_schema = False
-                                        menu_cercle_dans_cercle_init(lines)
-                                display.flip() #mettre à jour l'affichage
-                            while run_zoom_rendu :
-                                zoom_rendu(lines)
-                                for pyEvent in event.get():
-                                    if pyEvent.type == QUIT :
-                                        run_visu_2D = False
-                                        run_zoom_rendu = False 
-                                        run = False
-                                    if pyEvent.type == MOUSEBUTTONDOWN :
-                                        run_zoom_rendu = False
-                                        menu_cercle_dans_cercle_init(lines)
-                                        ecrit(current_line)
-                                display.flip() #mettre à jour l'affichage
+            while run_visu_2D : 
+                for pyEvent in event.get():
+                    if pyEvent.type == QUIT:
+                        run_visu_2D = False
+                        run = False
+                    if pyEvent.type == MOUSEBUTTONDOWN:
+                        clic(pyEvent.pos)
+                        while run_zoom_schema :
+                            zoom_schema(lines)
+                            for pyEvent in event.get():
+                                if pyEvent.type == QUIT :
+                                    run = False
+                                    run_visu_2D = False
+                                    run_zoom_schema = False
+                                if pyEvent.type == MOUSEBUTTONDOWN :
+                                    run_zoom_schema = False
+                                    menu_cercle_dans_cercle_init(lines)
+                                    ecrit(current_line)
                             display.flip() #mettre à jour l'affichage
-                        
-                        if pyEvent.type == KEYDOWN:
-                            input_to_text(pyEvent)  # Appel à la fonction pour gérer l'input
-                            ecrit(current_line)
-                        if pyEvent.type == MOUSEMOTION:
-                            bouton_gcode(pyEvent.pos)
-                            return_arrow(pyEvent.pos)
-                        # Relâchement du clic
-                        if pyEvent.type == MOUSEBUTTONUP:
-                            dragging = -1  # On arrête de déplacer l'objet
-                        if pyEvent.type == MOUSEMOTION and dragging >= 0:
-                            bouge_curseur(pyEvent.pos,dragging)
-                        display.flip() #mettre à jour l'affichage
+                        while run_zoom_rendu :
+                            zoom_rendu(lines)
+                            for pyEvent in event.get():
+                                if pyEvent.type == QUIT :
+                                    run_visu_2D = False
+                                    run_zoom_rendu = False 
+                                    run = False
+                                if pyEvent.type == MOUSEBUTTONDOWN :
+                                    run_zoom_rendu = False
+                                    menu_cercle_dans_cercle_init(lines)
+                                    ecrit(current_line)
+                            display.flip() #mettre à jour l'affichage
+
+                    if pyEvent.type == KEYDOWN:
+                        input_to_text(pyEvent)  # Appel à la fonction pour gérer l'input
+                        ecrit(current_line)
+                    if pyEvent.type == MOUSEMOTION:
+                        bouton_gcode(pyEvent.pos)
+                        return_arrow(pyEvent.pos)
+                    # Relâchement du clic
+                    if pyEvent.type == MOUSEBUTTONUP:
+                        dragging = -1  # On arrête de déplacer l'objet
+                    if pyEvent.type == MOUSEMOTION and dragging >= 0:
+                        bouge_curseur(pyEvent.pos,dragging)
+                    display.flip() #mettre à jour l'affichage
+            
+            if run_couleur :
+                menu_couleur()
+            while run_couleur :
+                for pyEvent in event.get():
+                    if pyEvent.type == QUIT:
+                        run = False
+                        run_couleur = False
+                    if pyEvent.type == MOUSEMOTION :
+                        survole_bouton(pyEvent.pos)
+                    if pyEvent.type == MOUSEBUTTONDOWN :
+                        clic_couleur(pyEvent.pos)
+                display.flip()
+            if run_cdc3D :
+                menu_cdc3D()
+            while run_cdc3D :
+                for pyEvent in event.get():
+                    if pyEvent.type == QUIT:
+                        run = False
+                        run_cdc3D = False
+                    if pyEvent.type == MOUSEMOTION :
+                        return_arrow(pyEvent.pos)
+                    if pyEvent.type == MOUSEBUTTONDOWN :
+                        clic_cdc3D(pyEvent.pos)
+                display.flip()
+            if run_ede :
+                menu_ede()
+            while run_ede :
+                for pyEvent in event.get():
+                    if pyEvent.type == QUIT:
+                        run = False
+                        run_ede = False
+                    if pyEvent.type == MOUSEMOTION :
+                        return_arrow(pyEvent.pos)
+                    if pyEvent.type == MOUSEBUTTONDOWN :
+                        clic_ede(pyEvent.pos)
+                display.flip()
+            menu_choix()
+
     display.flip() #mettre à jour l'affichage
 
 
