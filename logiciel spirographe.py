@@ -492,10 +492,10 @@ def input_to_text(event):
         - LEFT : déplace le curseur sur la gauche
         - RIGHT : déplace le curseur sur la droite
         - TAB : passe au champs suivant ou au champ précédent
-        - ESCAPE : revient au menu précédent (met run_visu_2D à False)
+        - ESCAPE : revient au menu précédent (met run_cdc à False)
         - any letter : écrit la touche qu'on vient de taper
     '''
-    global current_line, lines, cursor_position, key_press_times, run_visu_2D
+    global current_line, lines, cursor_position, key_press_times, run_cdc
     taille_carac = 3/5 * police_taille
     keys = key.get_pressed()
     longueur_current_line = len(lines[current_line]) 
@@ -521,7 +521,7 @@ def input_to_text(event):
             current_line = 0
             cursor_position = len(lines[current_line])
     elif event.key == K_ESCAPE:
-        run_visu_2D = False
+        run_cdc = False
     elif event.key == K_TAB and (keys[K_LSHIFT] or keys[K_RSHIFT]):
         if current_line > 0:
             draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
@@ -634,13 +634,13 @@ def clic(coord):
             met la variable dragging au numéro du curseur sélectionné (-1 par défaut)
         
         si le clic est sur le bouton flèche retour :
-            met la variable run_visu_2D à false
+            met la variable run_cdc à false
 
         (si le clic est sur le bouton G CODE :)
         (    ouvre le menu G CODE )
         (    n'ouvre pas le zoom_rendu)
     '''
-    global current_line, cursor_position, run_zoom_rendu, run_visu_2D, run_zoom_schema, dragging
+    global current_line, cursor_position, run_zoom_rendu, run_cdc, run_zoom_schema, dragging
     coord_x, coord_y = coord
     espace = window_height/4
     current_line1_y = 9*window_height/32
@@ -674,7 +674,7 @@ def clic(coord):
         run_zoom_rendu = True
     #clic sur la flèche retour
     if return_arrow(coord):
-        run_visu_2D = False
+        run_cdc = False
 
     if bouton_gcode(coord):
         print("clic sur le bouton G CODE")
@@ -828,12 +828,12 @@ def clic_menu(pos):
         coord = (x,y) : l'endroit du clic
     effet :
         si on clique :
-            sur le bouton cercle dans cercle : met run_visu_2D à True
+            sur le bouton cercle dans cercle : met run_cdc à True
     '''
-    global run_visu_2D, run_couleur, run_cdc3D, run_ede
+    global run_cdc, run_couleur, run_cdc3D, run_ede
 
     if bouton_cdc(pos):
-        run_visu_2D = True
+        run_cdc = True
 
     if bouton_couleur(pos):
         run_couleur = True
@@ -978,7 +978,7 @@ couleur_param = couleur("BLEU_JOLI")
 dragging = -1
 
 run = True
-run_visu_2D = False
+run_cdc = False
 run_zoom_schema = False
 run_zoom_rendu = False
 run_couleur = False
@@ -999,12 +999,12 @@ while run :
             bouton_ede(pyEvent.pos)
         if pyEvent.type == MOUSEBUTTONDOWN :
             clic_menu(pyEvent.pos)
-            if run_visu_2D : 
+            if run_cdc : 
                 menu_cercle_dans_cercle_init(lines)
-            while run_visu_2D : 
+            while run_cdc : 
                 for pyEvent in event.get():
                     if pyEvent.type == QUIT:
-                        run_visu_2D = False
+                        run_cdc = False
                         run = False
                     if pyEvent.type == MOUSEBUTTONDOWN:
                         clic(pyEvent.pos)
@@ -1013,7 +1013,7 @@ while run :
                             for pyEvent in event.get():
                                 if pyEvent.type == QUIT :
                                     run = False
-                                    run_visu_2D = False
+                                    run_cdc = False
                                     run_zoom_schema = False
                                 if pyEvent.type == MOUSEBUTTONDOWN :
                                     run_zoom_schema = False
@@ -1024,7 +1024,7 @@ while run :
                             zoom_rendu(lines)
                             for pyEvent in event.get():
                                 if pyEvent.type == QUIT :
-                                    run_visu_2D = False
+                                    run_cdc = False
                                     run_zoom_rendu = False 
                                     run = False
                                 if pyEvent.type == MOUSEBUTTONDOWN :
