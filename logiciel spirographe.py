@@ -314,10 +314,10 @@ def rendu3D(r1,r2,p,couleur_rendu,numéro):
         point_x, point_y, point_z = points3D(6000.0, 10000, r1, r2, p)
         if numéro == 1:
             for i in range(10000):
-                draw.circle(screen,couleur_rendu,(centre_x+1.8*point_x[i],centre_y + window_height/10+1.8*point_y[i]),1)
+                draw.circle(screen,couleur_rendu,(centre_x+1.7*point_x[i],centre_y + window_height/10+1.7*point_y[i]),1)
         if numéro == 2:
             for i in range(10000):
-                draw.circle(screen,couleur_rendu,(centre_x+1.8*point_x[i],centre_y + window_height/5 +1.8*point_z[i]),1)
+                draw.circle(screen,couleur_rendu,(centre_x+1.7*point_x[i],centre_y + window_height/5 +1.7*point_z[i]),1)
     bouton_gcode((0,0))
 
 def menu_cercle_dans_cercle_init(lines):
@@ -991,10 +991,6 @@ def menu_cdc3D(numéro):
     ecrit(current_line)
     curseurs_init()
 
-    ecriture(" Plan : ",couleur("BLACK"),int(3/5*police_taille),(3*window_width/4,window_height/20))
-    ecriture("(x,y)",couleur("BLACK"),int(3/5*police_taille),(13*window_width/20,window_height/10))
-    ecriture("(x,z) et (y,z)",couleur("BLACK"),int(3/5*police_taille),(16*window_width/20,window_height/10))
-
     return_arrow((0,0))
 
 def clic_cdc3D(coord, numéro):
@@ -1040,11 +1036,10 @@ def clic_cdc3D(coord, numéro):
     if return_arrow(coord):
         run_cdc3D = False
 
-
     #clic sur la sélection du plan
-    if (coord_x > 12*window_width/20 and coord_x <  14*window_width/20 and coord_y > window_height/10 - 20 and coord_y < window_height/10 + 20) :
+    if (bouton_xy(coord)) :
         numéro = 1
-    if (coord_x > 14*window_width/20 and coord_x <  18*window_width/20 and coord_y > window_height/10 - 20 and coord_y < window_height/10 + 20) :
+    if (bouton_xz(coord)):
         numéro = 2
 
     if bouton_gcode(coord):
@@ -1167,6 +1162,48 @@ def modifie_rayons3D(lines,numéro):
 
         #cercles(r1,r2,p,couleur_g_cercle,couleur_p_cercle,couleur_rendu,couleur_fond)
         rendu3D(r1,r2,p,couleur_rendu,numéro)
+
+def bouton_xy(pos):
+    #Ajout pour les boutons
+    res = False
+    message = "Plan (0,x,y)"
+    (cursor_x, cursor_y) = pos
+    police_taille2 = police_taille-8
+    width = police_taille2*3/5*(len(message)+1)
+    height = police_taille2
+    pos_x = 15*window_width/20
+    pos_y = window_height/20
+    draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
+    if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
+        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("GREEN"),police_taille2,(pos_x,pos_y))
+        res = True
+
+    else :
+        draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("WHITE"),police_taille2,(pos_x,pos_y))
+    return res
+
+def bouton_xz(pos):
+    #Ajout pour les boutons
+    res = False
+    message = "Plan (0,x,z) ou (0,y,z)"
+    (cursor_x, cursor_y) = pos
+    police_taille2 = police_taille-8
+    width = police_taille2*3/5*(len(message)+1)
+    height = police_taille2
+    pos_x = 15*window_width/20
+    pos_y = window_height/10
+    draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
+    if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
+        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("GREEN"),police_taille2,(pos_x,pos_y))
+        res = True
+
+    else :
+        draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("WHITE"),police_taille2,(pos_x,pos_y))
+    return res
 
 #fonctions pour le menu ellipse dans ellipse
 
@@ -1321,6 +1358,8 @@ while run :
                         run_cdc3D = False
                     if pyEvent.type == MOUSEMOTION :
                         return_arrow(pyEvent.pos)
+                        bouton_xy(pyEvent.pos)
+                        bouton_xz(pyEvent.pos)
                     if pyEvent.type == MOUSEBUTTONDOWN :
                         numéro = clic_cdc3D(pyEvent.pos,numéro)
                         modifie_rayons3D(lines,numéro)
