@@ -1033,9 +1033,13 @@ def clic_cdc3D(coord, numéro):
     #clic sur le shéma
     if (coord_x > window_width/2 and coord_y < window_height/2):
         run_zoom_schema = True 
+    #clic sur le rendu
+    if (coord_x > window_width/2 and coord_y > window_height/2):
+        run_zoom_rendu = True
     #clic sur la flèche retour
     if return_arrow(coord):
         run_cdc3D = False
+
 
     #clic sur la sélection du plan
     if (coord_x > 12*window_width/20 and coord_x <  14*window_width/20 and coord_y > window_height/10 - 20 and coord_y < window_height/10 + 20) :
