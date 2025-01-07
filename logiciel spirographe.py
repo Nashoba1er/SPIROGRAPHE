@@ -1,6 +1,6 @@
 from pygame import init, draw, font, K_BACKSPACE, key, K_RETURN, K_DOWN, K_UP, KEYDOWN, K_LEFT, K_RIGHT, KEYUP, time
 from pygame import K_TAB, K_LSHIFT, K_RSHIFT, display, event, QUIT, MOUSEBUTTONDOWN, MOUSEMOTION, MOUSEBUTTONUP, K_ESCAPE
-from numpy import linspace, cos, sin
+from numpy import linspace, cos, sin, sqrt
 
 # couleurs
 
@@ -263,6 +263,23 @@ def points (theta_max, N, petit_r, grand_r, p) :
 
     return x, y
 
+def points3D(theta_max, N, petit_r, grand_r, p) :
+    theta = linspace(0.0, theta_max, N)
+    diff_r = grand_r - petit_r
+    q = 1.0 - (grand_r/petit_r) #arrangez vous pour que ce rapport soit différent de 1/2
+    x = []
+    y = []
+    z = []
+    for i in range ( N ) :
+        new_x = diff_r*cos(theta[i]) + p * cos(q*theta[i])
+        new_y = diff_r*sin(theta[i]) + p * sin(q*theta[i])
+        new_z = - sqrt(grand_r**2 - new_x**2 + new_y**2)
+        x.append(new_x)
+        y.append(new_y)
+        z.append(new_z)
+    
+    return x, y, z
+
 def rendu(r1,r2,p,couleur_rendu):
     '''
     entrée :
@@ -279,6 +296,28 @@ def rendu(r1,r2,p,couleur_rendu):
         point_x, point_y = points(6000.0, 10000, r1, r2, p)
         for i in range(10000):
             draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),1)
+    bouton_gcode((0,0))
+
+def rendu3D(r1,r2,p,couleur_rendu,numéro):
+    '''
+    entrée :
+        r1 : rayon du grand cercle
+        r2 : rayon du petit cercle
+        p : distance entre le centre du petit cercle et le point P
+        couleur_rendu : la couleur du rendu
+    effet :
+        affiche le rendu et le bouton_gcode
+    '''
+    centre_x, centre_y = 3*window_width/4,3*window_height/4
+    if not (r1 > window_height/4 or r2 >= r1 or p > r2) : 
+        #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
+        point_x, point_y, point_z = points3D(6000.0, 10000, r1, r2, p)
+        if numéro == 1:
+            for i in range(10000):
+                draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),1)
+        if numéro == 2:
+            for i in range(10000):
+                draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_z[i]),1)
     bouton_gcode((0,0))
 
 def menu_cercle_dans_cercle_init(lines):
@@ -343,7 +382,36 @@ def zoom_rendu(lines):
             draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),1)
     else :
         run_zoom_rendu = False
-     
+
+def zoom_rendu3D(lines, numéro):
+    '''
+    entrée :
+        r1 : rayon du grand cercle
+        r2 : rayon du petit cercle
+        p : distance entre le centre du petit cercle et le point P
+        couleur_rendu : la couleur du rendu
+    effet :
+        affiche le rendu
+    '''
+    global run_zoom_rendu,couleur_g_cercle,couleur_p_cercle,couleur_fond
+    if is_float(lines[0]) and is_float(lines[1]) and is_float(lines[2]):
+        r1 = float(lines[0])*(window_height/2)/100
+        r2 = float(lines[1])*(window_height/2)/100
+        p = float(lines[2])*(window_height/2)/100
+    centre_x, centre_y = window_width/2,window_height/2
+    if not (r1 > window_height/2 or r2 >= r1 or p > r2) : 
+        screen.fill(couleur_fond)
+        #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
+        point_x, point_y, point_z = points3D(12000.0, 75000, r1, r2, p)
+        if numéro == 1:
+            for i in range(75000):
+                draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),1)
+        if numéro == 2:
+            for i in range(75000):
+                draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_z[i]),1)
+    else :
+        run_zoom_rendu = False
+
 def curseurs_init():
     '''
     effet : affiche les 3 curseurs
@@ -617,6 +685,27 @@ def modifie_rayons(lines):
         p = float(lines[2])*(window_height/4)/100
         cercles(r1,r2,p,couleur_g_cercle,couleur_p_cercle,couleur_rendu,couleur_fond)
         rendu(r1,r2,p,couleur_rendu)
+
+def modifie_rayons3D(lines,numéro):
+    '''
+    entrée :
+        le contenu des champs
+    effet :
+        vérifie que le contenu des champs est suffisant pour faire un rendu
+        si c'est le cas :
+            normalise les valeurs sur 100 selon la taille de l'écran
+            affiche le rendu et le schéma
+    '''
+    draw.rect(screen,couleur_fond,[window_width/2, window_height/2, window_width/2, window_height/2],0)
+    if is_float(lines[0]) and is_float(lines[1]) and is_float(lines[2]):
+        r1 = float(lines[0])*(window_height/4)/100
+        r2 = float(lines[1])*(window_height/4)/100
+        p = float(lines[2])*(window_height/4)/100
+
+        
+
+        #cercles(r1,r2,p,couleur_g_cercle,couleur_p_cercle,couleur_rendu,couleur_fond)
+        rendu3D(r1,r2,p,couleur_rendu,numéro)
 
 def clic(coord):
     '''
@@ -896,25 +985,96 @@ def clic_couleur(coord):
 
 #fonctions pour le menu demi-sphère :
 
-def menu_cdc3D():
+def menu_cdc3D(numéro):
     '''
     effet :
         - affiche des boutons pour changer les couleurs de fond
         - affiche des boutons indiquant les couleurs pour le rendu
     '''
+    global couleur_fond,window_height,window_width,cursor_position,police_taille,current_line
+    taille_carac = 3/5*police_taille
     screen.fill(couleur_fond)
-    return_arrow((0,0))
-    ecriture("à implémenter",couleur("RED"),police_taille,(window_width/2 , window_height/2))
 
-def clic_cdc3D(coord):
+    draw.rect(screen,couleur_param,[0,0,window_width/2,window_height],0)
+    
+    ecriture("Saisie des paramètres",couleur("BLACK"),police_taille,(window_width/4,window_height/8))
+    ecriture("Rayon de la sphère",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/4))
+    ecriture("Rayon du petit cercle",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/2))
+    ecriture("Distance au centre   ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,3*window_height/4))
+    ecriture("R max = 100",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/4+5*window_height/32))
+    ecriture(" r max = R ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/2+5*window_height/32))
+    ecriture(" d max = r ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,3*window_height/4+5*window_height/32))
+
+    modifie_rayons3D(lines,numéro)
+
+    for i in range(3):
+        ecrit(i)
+        if i != current_line:
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+    ecrit(current_line)
+    curseurs_init()
+
+    ecriture(" Plan : ",couleur("BLACK"),int(3/5*police_taille),(3*window_width/4,window_height/20))
+    ecriture("(x,y)",couleur("BLACK"),int(3/5*police_taille),(13*window_width/20,window_height/10))
+    ecriture("(x,z) et (y,z)",couleur("BLACK"),int(3/5*police_taille),(16*window_width/20,window_height/10))
+
+    return_arrow((0,0))
+
+def clic_cdc3D(coord, numéro):
     '''
     entrée : les coordonnées du clic
     effet : change la couleur selon le clic
     '''
     global run_cdc3D
+    
+    global current_line, cursor_position, run_zoom_rendu, run_cdc, run_zoom_schema, dragging
+    coord_x, coord_y = coord
+    espace = window_height/4
+    current_line1_y = 9*window_height/32
+    current_line_x = window_width/8
+    height = window_height/15
+    width = window_width/4
+    taille_carac = 3/5 * police_taille
+    taille_curseur = 0.7*window_height/15
+    
+    for i in range(3):
+        if (coord_x > current_line_x and coord_x < current_line_x  + width and coord_y > (i*espace)+current_line1_y and coord_y < (i*espace)+current_line1_y+height) :
+            # je suis dans le champ i
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,taille_curseur],0)
+            current_line = i
+            cursor_position = len(lines[current_line])
+            for carac in range(len(lines[current_line])):
+                if (coord_x < current_line_x + (len(lines[current_line])-carac)*taille_carac) :
+                    cursor_position = len(lines[current_line])-carac - 1
+            draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,taille_curseur],0)
+        
+        # Vérifie si le clic est sur un curseur
+        if coord_y > (i)*espace+current_line1_y + 2 * window_height/32 and coord_y < (i)*espace+current_line1_y + 4 * window_height/32 :
+            # je suis à hauteur du curseur
+            if coord_x > current_line_x and coord_x < current_line_x  + width :
+                dragging = i  # On commence à déplacer l'objet
+    #clic sur le shéma
+    if (coord_x > window_width/2 and coord_y < window_height/2):
+        run_zoom_schema = True 
+    #clic sur le rendu
+    if (coord_x > window_width/2 and coord_y > window_height/2):
+        run_zoom_rendu = True
+    #clic sur la flèche retour
     if return_arrow(coord):
         run_cdc3D = False
-    
+
+    #clic sur la sélection du plan
+    if (coord_x > 12*window_width/20 and coord_x <  14*window_width/20 and coord_y > window_height/10 - 20 and coord_y < window_height/10 + 20) :
+        numéro = 1
+    if (coord_x > 14*window_width/20 and coord_x <  18*window_width/20 and coord_y > window_height/10 - 20 and coord_y < window_height/10 + 20) :
+        numéro = 2
+
+    if bouton_gcode(coord):
+        print("clic sur le bouton G CODE")
+
+    display.flip()
+
+    return numéro
 
 #fonctions pour le menu ellipse dans ellipse
 
@@ -984,6 +1144,7 @@ run_zoom_rendu = False
 run_couleur = False
 run_cdc3D = False
 run_ede = False
+numéro = 2
 
 menu_choix()
 
@@ -1001,6 +1162,7 @@ while run :
             clic_menu(pyEvent.pos)
             if run_cdc : 
                 menu_cercle_dans_cercle_init(lines)
+                
             while run_cdc : 
                 for pyEvent in event.get():
                     if pyEvent.type == QUIT:
@@ -1059,7 +1221,7 @@ while run :
                         clic_couleur(pyEvent.pos)
                 display.flip()
             if run_cdc3D :
-                menu_cdc3D()
+                menu_cdc3D(numéro)
             while run_cdc3D :
                 for pyEvent in event.get():
                     if pyEvent.type == QUIT:
@@ -1068,8 +1230,26 @@ while run :
                     if pyEvent.type == MOUSEMOTION :
                         return_arrow(pyEvent.pos)
                     if pyEvent.type == MOUSEBUTTONDOWN :
-                        clic_cdc3D(pyEvent.pos)
+                        numéro = clic_cdc3D(pyEvent.pos,numéro)
+                        modifie_rayons3D(lines,numéro)
+                        display.flip()
+                        while run_zoom_rendu :
+                            zoom_rendu3D(lines, numéro)
+                            for pyEvent in event.get():
+                                if pyEvent.type == QUIT :
+                                    run_cdc = False
+                                    run_zoom_rendu = False 
+                                    run = False
+                                if pyEvent.type == MOUSEBUTTONDOWN :
+                                    run_zoom_rendu = False
+                                    menu_cdc3D(numéro)
+                                    ecrit(current_line)
+                            display.flip() #mettre à jour l'affichage
+                    if pyEvent.type == KEYDOWN:
+                        input_to_text(pyEvent)  # Appel à la fonction pour gérer l'input
+                        ecrit(current_line)
                 display.flip()
+                    
             if run_ede :
                 menu_ede()
             while run_ede :
