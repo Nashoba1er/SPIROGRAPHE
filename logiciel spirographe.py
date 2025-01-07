@@ -308,16 +308,16 @@ def rendu3D(r1,r2,p,couleur_rendu,numéro):
     effet :
         affiche le rendu et le bouton_gcode
     '''
-    centre_x, centre_y = 3*window_width/4,3*window_height/4
+    centre_x, centre_y = 3*window_width/4,window_height/2
     if not (r1 > window_height/4 or r2 >= r1 or p > r2) : 
         #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
         point_x, point_y, point_z = points3D(6000.0, 10000, r1, r2, p)
         if numéro == 1:
             for i in range(10000):
-                draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),1)
+                draw.circle(screen,couleur_rendu,(centre_x+1.8*point_x[i],centre_y + window_height/10+1.8*point_y[i]),1)
         if numéro == 2:
             for i in range(10000):
-                draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_z[i]),1)
+                draw.circle(screen,couleur_rendu,(centre_x+1.8*point_x[i],centre_y + window_height/5 +1.8*point_z[i]),1)
     bouton_gcode((0,0))
 
 def menu_cercle_dans_cercle_init(lines):
@@ -1157,7 +1157,7 @@ def modifie_rayons3D(lines,numéro):
             normalise les valeurs sur 100 selon la taille de l'écran
             affiche le rendu et le schéma
     '''
-    draw.rect(screen,couleur_fond,[window_width/2, window_height/2, window_width/2, window_height/2],0)
+    draw.rect(screen,couleur_fond,[window_width/2, 3*window_height/20, window_width/2, 17*window_height/20],0)
     if is_float(lines[0]) and is_float(lines[1]) and is_float(lines[2]):
         r1 = float(lines[0])*(window_height/4)/100
         r2 = float(lines[1])*(window_height/4)/100
