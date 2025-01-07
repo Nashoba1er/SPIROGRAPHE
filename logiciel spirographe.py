@@ -686,27 +686,6 @@ def modifie_rayons(lines):
         cercles(r1,r2,p,couleur_g_cercle,couleur_p_cercle,couleur_rendu,couleur_fond)
         rendu(r1,r2,p,couleur_rendu)
 
-def modifie_rayons3D(lines,numéro):
-    '''
-    entrée :
-        le contenu des champs
-    effet :
-        vérifie que le contenu des champs est suffisant pour faire un rendu
-        si c'est le cas :
-            normalise les valeurs sur 100 selon la taille de l'écran
-            affiche le rendu et le schéma
-    '''
-    draw.rect(screen,couleur_fond,[window_width/2, window_height/2, window_width/2, window_height/2],0)
-    if is_float(lines[0]) and is_float(lines[1]) and is_float(lines[2]):
-        r1 = float(lines[0])*(window_height/4)/100
-        r2 = float(lines[1])*(window_height/4)/100
-        p = float(lines[2])*(window_height/4)/100
-
-        
-
-        #cercles(r1,r2,p,couleur_g_cercle,couleur_p_cercle,couleur_rendu,couleur_fond)
-        rendu3D(r1,r2,p,couleur_rendu,numéro)
-
 def clic(coord):
     '''
     entrée :
@@ -769,7 +748,6 @@ def clic(coord):
         print("clic sur le bouton G CODE")
 
     display.flip()
-
 
 #fonctions pour le menu principal :
 
@@ -965,7 +943,6 @@ def menu_couleur():
     draw.rect(screen,couleur("WHITE"),[window_width/8 + 1 * taille * 3/2,window_height/2+5*taille/2,taille,taille])
     draw.rect(screen,couleur("BLACK"),[window_width/8 + 2 * taille * 3/2,window_height/2+5*taille/2,taille,taille])
 
-
 def survole_bouton(coord):
     '''
     entrée : les coordonnées de la souris
@@ -1056,9 +1033,6 @@ def clic_cdc3D(coord, numéro):
     #clic sur le shéma
     if (coord_x > window_width/2 and coord_y < window_height/2):
         run_zoom_schema = True 
-    #clic sur le rendu
-    if (coord_x > window_width/2 and coord_y > window_height/2):
-        run_zoom_rendu = True
     #clic sur la flèche retour
     if return_arrow(coord):
         run_cdc3D = False
@@ -1075,6 +1049,120 @@ def clic_cdc3D(coord, numéro):
     display.flip()
 
     return numéro
+
+def input_to_text3D(event,numéro):
+    '''
+    entrée :
+        evènement PYGAME :
+            - BACKSPACE
+            - RETURN
+            - UP | DOWN | LEFT | RIGHT
+            - TAB
+            - ESCAPE
+            - any letter
+    effet : 
+        Tout ceci n'est pas affiché, la fonction ecrit se charge de l'affichage
+        - BACKSPACE : efface le caractère à gauche du curseur
+        - RETURN : place le curseur à la fin du champ suivant (le 0 quand on est sur le 2)
+        - UP : augmente de 1 la valeur du champ
+        - DOWN : diminue de 1 la valeur du champ
+        - LEFT : déplace le curseur sur la gauche
+        - RIGHT : déplace le curseur sur la droite
+        - TAB : passe au champs suivant ou au champ précédent
+        - ESCAPE : revient au menu précédent (met run_cdc à False)
+        - any letter : écrit la touche qu'on vient de taper
+    '''
+    global current_line, lines, cursor_position, key_press_times, run_cdc
+    taille_carac = 3/5 * police_taille
+    keys = key.get_pressed()
+    longueur_current_line = len(lines[current_line]) 
+
+    if event.key == K_BACKSPACE:
+        # Si Retour arrière est appuyé
+        if longueur_current_line > 0 and cursor_position > 0:
+            if cursor_position == 1 :
+                lines[current_line] = lines[current_line][1:]
+            elif cursor_position == (longueur_current_line) :
+                lines[current_line] = lines[current_line][:-1]
+            else :
+                lines[current_line] = lines[current_line][:(cursor_position-1)] + lines[current_line][(cursor_position):]  # Supprime le dernier caractère
+            cursor_position -= 1
+    elif event.key == K_RETURN:
+        # Si 'Entrée' est appuyé,
+        if current_line < 2:
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+            current_line += 1
+            cursor_position = len(lines[current_line])
+        else :
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+            current_line = 0
+            cursor_position = len(lines[current_line])
+    elif event.key == K_ESCAPE:
+        run_cdc = False
+    elif event.key == K_TAB and (keys[K_LSHIFT] or keys[K_RSHIFT]):
+        if current_line > 0:
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+            current_line -=1
+            cursor_position = len(lines[current_line])
+    elif event.key == K_TAB:
+        #si on appuie sur la touche du bas, on passe à la ligne suivante :
+        if current_line < 2:
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+            current_line += 1
+            cursor_position = len(lines[current_line])
+    elif event.key == K_UP :
+        if is_float(lines[current_line]):
+            lines[current_line] = str(int(float(lines[current_line])) + 1)
+        cursor_position = len(lines[current_line])
+        modifie_rayons3D(lines,numéro)
+    elif event.key == K_DOWN :
+        if is_float(lines[current_line]):
+            lines[current_line] = str(int(float(lines[current_line])) - 1)
+        cursor_position = len(lines[current_line])
+        modifie_rayons3D(lines,numéro)
+    elif event.key == K_RIGHT:
+        #si on appuie sur la flèche de droite, le curseur se déplace d'une lettre
+        if cursor_position < (longueur_current_line):
+            cursor_position += 1
+    elif event.key == K_LEFT:
+        #si on appuie sur la flèche de gauche, le curseur se déplace d'une lettre
+        if cursor_position > 0:
+            cursor_position -=1
+    else:
+        # Autres touches
+        if longueur_current_line <= character_limit:
+        # Ajouter le caractère à la ligne actuelle
+            letter = event.unicode
+            if letter:  # Si la touche produit un caractère (ignore Shift, Ctrl, etc.)
+                if cursor_position == 0:
+                    lines[current_line] = letter + lines[current_line]
+                elif cursor_position < (longueur_current_line):
+                    lines[current_line] = lines[current_line][:(cursor_position)] + letter + lines[current_line][(cursor_position):]
+                else: 
+                    lines[current_line] += letter
+                cursor_position += 1
+                modifie_rayons3D(lines,numéro)
+
+def modifie_rayons3D(lines,numéro):
+    '''
+    entrée :
+        le contenu des champs
+    effet :
+        vérifie que le contenu des champs est suffisant pour faire un rendu
+        si c'est le cas :
+            normalise les valeurs sur 100 selon la taille de l'écran
+            affiche le rendu et le schéma
+    '''
+    draw.rect(screen,couleur_fond,[window_width/2, window_height/2, window_width/2, window_height/2],0)
+    if is_float(lines[0]) and is_float(lines[1]) and is_float(lines[2]):
+        r1 = float(lines[0])*(window_height/4)/100
+        r2 = float(lines[1])*(window_height/4)/100
+        p = float(lines[2])*(window_height/4)/100
+
+        
+
+        #cercles(r1,r2,p,couleur_g_cercle,couleur_p_cercle,couleur_rendu,couleur_fond)
+        rendu3D(r1,r2,p,couleur_rendu,numéro)
 
 #fonctions pour le menu ellipse dans ellipse
 
@@ -1246,7 +1334,7 @@ while run :
                                     ecrit(current_line)
                             display.flip() #mettre à jour l'affichage
                     if pyEvent.type == KEYDOWN:
-                        input_to_text(pyEvent)  # Appel à la fonction pour gérer l'input
+                        input_to_text3D(pyEvent,numéro)  # Appel à la fonction pour gérer l'input
                         ecrit(current_line)
                 display.flip()
                     
