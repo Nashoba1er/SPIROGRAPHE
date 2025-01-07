@@ -1329,8 +1329,8 @@ while run :
                             zoom_rendu3D(lines, numéro)
                             for pyEvent in event.get():
                                 if pyEvent.type == QUIT :
-                                    run_cdc3D = False
-                                    run_zoom_rendu = False
+                                    run_cdc = False
+                                    run_zoom_rendu = False 
                                     run = False
                                 if pyEvent.type == MOUSEBUTTONDOWN :
                                     run_zoom_rendu = False
