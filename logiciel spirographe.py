@@ -315,9 +315,29 @@ def rendu3D(r1,r2,p,couleur_rendu,numéro):
         if numéro == 1:
             for i in range(10000):
                 draw.circle(screen,couleur_rendu,(centre_x+1.7*point_x[i],centre_y + window_height/10+1.7*point_y[i]),1)
+            draw.line(screen, couleur("RED"), (centre_x - window_width/5, centre_y+window_height/10), (centre_x + window_width/5, centre_y+window_height/10), 2)
+            flèche_x = centre_x + window_width / 5
+            flèche_y = centre_y + window_height / 10
+            draw.polygon(screen, couleur("RED"),[(flèche_x + 10, flèche_y),(flèche_x, flèche_y - 5),(flèche_x, flèche_y + 5)])
+            draw.line(screen, couleur("RED"), (centre_x, centre_y+window_height/2.4), (centre_x , centre_y-window_height/4), 2)
+            flèche_x = centre_x
+            flèche_y = centre_y - window_height / 4  # Extrémité supérieure de l'axe
+            draw.polygon(screen, couleur("RED"),[(flèche_x, flèche_y - 10),(flèche_x - 5, flèche_y),(flèche_x + 5, flèche_y)])
+            ecriture("x",couleur("RED"),police_taille,(centre_x + window_width / 5, centre_y + window_height / 9))
+            ecriture("y",couleur("RED"),police_taille,(centre_x + window_width/20, centre_y - window_height / 4))
         if numéro == 2:
             for i in range(10000):
                 draw.circle(screen,couleur_rendu,(centre_x+1.7*point_x[i],centre_y + window_height/5 +1.7*point_z[i]),1)
+            draw.line(screen, couleur("RED"), (centre_x - window_width/5, centre_y+window_height/10), (centre_x + window_width/5, centre_y+window_height/10), 2)
+            flèche_x = centre_x + window_width / 5
+            flèche_y = centre_y + window_height / 10
+            draw.polygon(screen, couleur("RED"),[(flèche_x + 10, flèche_y),(flèche_x, flèche_y - 5),(flèche_x, flèche_y + 5)])
+            draw.line(screen, couleur("RED"), (centre_x, centre_y+window_height/2.4), (centre_x , centre_y-window_height/4), 2)
+            flèche_x = centre_x
+            flèche_y = centre_y - window_height / 4  # Extrémité supérieure de l'axe
+            draw.polygon(screen, couleur("RED"),[(flèche_x, flèche_y - 10),(flèche_x - 5, flèche_y),(flèche_x + 5, flèche_y)])
+            ecriture("x",couleur("RED"),police_taille,(centre_x + window_width / 5, centre_y + window_height / 9))
+            ecriture("z",couleur("RED"),police_taille,(centre_x + window_width/20, centre_y - window_height / 4))
     bouton_gcode((0,0))
 
 def menu_cercle_dans_cercle_init(lines):
@@ -975,21 +995,24 @@ def menu_cdc3D(numéro):
     draw.rect(screen,couleur_param,[0,0,window_width/2,window_height],0)
     
     ecriture("Saisie des paramètres",couleur("BLACK"),police_taille,(window_width/4,window_height/8))
-    ecriture("Rayon de la sphère",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/4))
-    ecriture("Rayon du petit cercle",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/2))
-    ecriture("Distance au centre   ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,3*window_height/4))
-    ecriture("R max = 100",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/4+5*window_height/32))
-    ecriture(" r max = R ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/2+5*window_height/32))
-    ecriture(" d max = r ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,3*window_height/4+5*window_height/32))
+    ecriture("Rayon de la sphère :",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5 + window_height/40))
+    ecriture("(R max = 100)",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
+    ecriture("Rayon du grand cercle",couleur("BLACK"),int(3/5*police_taille),(window_width/4,2*window_height/5+ window_height/40))
+    ecriture("(R max = 100)",couleur("BLACK"),int(3/5*police_taille),(window_width/4,2*window_height/5+window_height/40 + window_height/30))
+    ecriture("Rayon du petit cercle",couleur("BLACK"),int(3/5*police_taille),(window_width/4,3*window_height/5+ window_height/32))
+    ecriture(" (r max = R) ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,3*window_height/5+window_height/40 + window_height/30))
+    ecriture("Distance au centre   ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,4*window_height/5+ window_height/32))
+    ecriture(" (d max = r) ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,4*window_height/5+window_height/40 + window_height/30))
+    
+    modifie_rayons3D(lines2,numéro)
 
-    modifie_rayons3D(lines,numéro)
-
-    for i in range(3):
-        ecrit(i)
+    for i in range(4):
+        ecrit3D(i)
         if i != current_line:
-            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
-    ecrit(current_line)
-    curseurs_init()
+            #draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5-9*window_height/32,2,0.7*window_height/15],0)
+    ecrit3D(current_line)
+    curseurs_init3D()
 
     return_arrow((0,0))
 
@@ -1089,11 +1112,11 @@ def input_to_text3D(event,numéro):
     elif event.key == K_RETURN:
         # Si 'Entrée' est appuyé,
         if current_line < 2:
-            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
             current_line += 1
             cursor_position = len(lines[current_line])
         else :
-            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
             current_line = 0
             cursor_position = len(lines[current_line])
     elif event.key == K_ESCAPE:
@@ -1158,9 +1181,6 @@ def modifie_rayons3D(lines,numéro):
         r2 = float(lines[1])*(window_height/4)/100
         p = float(lines[2])*(window_height/4)/100
 
-        
-
-        #cercles(r1,r2,p,couleur_g_cercle,couleur_p_cercle,couleur_rendu,couleur_fond)
         rendu3D(r1,r2,p,couleur_rendu,numéro)
 
 def bouton_xy(pos):
@@ -1185,6 +1205,7 @@ def bouton_xy(pos):
     return res
 
 def bouton_xz(pos):
+
     #Ajout pour les boutons
     res = False
     message = "Plan (0,x,z) ou (0,y,z)"
@@ -1204,6 +1225,81 @@ def bouton_xz(pos):
         draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
         ecriture(message,couleur("WHITE"),police_taille2,(pos_x,pos_y))
     return res
+
+def ecrit3D(num_champ):
+    '''
+    entrée :
+        num_champ : numéro du champ
+    effet :
+        met à jour le contenu du champ numéro "current_line"
+    '''
+    global cursor_position
+    espace = window_height/5 # Espace entre chaque current_line en pixels
+    current_line1_y = 9*window_height/32
+    current_line_x = window_width/8
+    spacing = 1/5*police_taille #marge gauche
+    taille_carac = 3/5 * police_taille
+    indent_x,indent_y = current_line_x + spacing,current_line1_y # position
+    champ3D(num_champ)
+    # Rendre et afficher chaque ligne de texte
+    txt_surf = police.render(lines2[num_champ], True, couleur("BLACK"))
+    screen.blit(txt_surf, (indent_x, indent_y + num_champ*espace))
+    draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5-9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+    curseur3D(num_champ)
+    display.update()
+
+def champ3D(num_champ):
+    '''
+    entrée : 
+        num_champ : numéro du champ
+    effet : 
+        colorie en blanc le champ numéro "num_champ" (efface son contenu)
+    '''
+    espace = window_height/5
+    current_line1_y = 9*window_height/32
+    current_line_x = window_width/8
+    height = window_height/15
+    width = window_width/4
+    draw.rect(screen,couleur("WHITE"),[current_line_x,(num_champ)*espace+current_line1_y,width,height])
+    draw.rect(screen,couleur("BLACK"),[current_line_x,(num_champ)*espace+current_line1_y,width,height],2)
+
+def curseurs_init3D():
+    '''
+    effet : affiche les 4 curseurs
+    '''
+    for num_champ in range(4):
+        curseur3D(num_champ)    
+
+def curseur3D(num_champ):
+    '''
+    entrée : num_champ = le numéro du curseur
+    effet : affiche le curseur numéro "num_champ" en fonction de la valeur du champ
+    '''
+    global couleur_g_cercle,couleur_p_cercle, couleur_rendu, lines2
+    espace = window_height/5
+    current_line1_y = 9*window_height/32
+    pos_y = (num_champ)*espace+current_line1_y + 3 * window_height/32
+    pos_x = window_width / 4
+    width_champ = window_width / 4
+    width = width_champ * (2/3)
+
+    if num_champ == 0 :
+        couleur_curseur = couleur_g_cercle
+    elif num_champ == 1:
+        couleur_curseur = couleur_p_cercle
+    else :
+        couleur_curseur = couleur_rendu
+
+    if is_float(lines2[num_champ]):
+        param = float(lines2[num_champ])
+        coord = (pos_x-width/2 + param/100*width,pos_y+1)
+        draw.rect(screen,couleur_param,[pos_x - width/2 - 5,pos_y-6,width + 10,12],0)
+        draw.rect(screen,couleur_curseur,[pos_x - width/2,pos_y,width,2],0)
+        draw.circle(screen,couleur("BLACK"),coord,5)
+        draw.circle(screen,couleur_curseur,coord,3)
+
+    else : 
+        draw.rect(screen,couleur_curseur,[pos_x - width/2,pos_y,width,2],0)
 
 #fonctions pour le menu ellipse dans ellipse
 
@@ -1257,6 +1353,7 @@ police_taille = int(window_height/17)
 police = font.SysFont("Courier New", police_taille)  # Police par défaut, taille 36
 character_limit = 7  # Limite de caractères par ligne
 lines = ['75','40','20']  # Liste des lignes de texte
+lines2 = ['75', '40', '20', '0'] # Liste des lignes de texte pour 3D
 current_line = 0  # Index de la ligne courante
 cursor_position = 2
 couleur_g_cercle = couleur("RED")
@@ -1362,10 +1459,10 @@ while run :
                         bouton_xz(pyEvent.pos)
                     if pyEvent.type == MOUSEBUTTONDOWN :
                         numéro = clic_cdc3D(pyEvent.pos,numéro)
-                        modifie_rayons3D(lines,numéro)
+                        modifie_rayons3D(lines2,numéro)
                         display.flip()
                         while run_zoom_rendu :
-                            zoom_rendu3D(lines, numéro)
+                            zoom_rendu3D(lines2, numéro)
                             for pyEvent in event.get():
                                 if pyEvent.type == QUIT :
                                     run_cdc = False
@@ -1374,11 +1471,11 @@ while run :
                                 if pyEvent.type == MOUSEBUTTONDOWN :
                                     run_zoom_rendu = False
                                     menu_cdc3D(numéro)
-                                    ecrit(current_line)
+                                    ecrit3D(current_line)
                             display.flip() #mettre à jour l'affichage
                     if pyEvent.type == KEYDOWN:
                         input_to_text3D(pyEvent,numéro)  # Appel à la fonction pour gérer l'input
-                        ecrit(current_line)
+                        ecrit3D(current_line)
                 display.flip()
                     
             if run_ede :
@@ -1396,6 +1493,5 @@ while run :
             menu_choix()
 
     display.flip() #mettre à jour l'affichage
-
 
 quit()
