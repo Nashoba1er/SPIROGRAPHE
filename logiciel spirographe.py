@@ -2,7 +2,7 @@ from pygame import init, draw, font, K_BACKSPACE, key, K_RETURN, K_DOWN, K_UP, K
 from pygame import K_TAB, K_LSHIFT, K_RSHIFT, display, event, QUIT, MOUSEBUTTONDOWN, MOUSEMOTION, MOUSEBUTTONUP, K_ESCAPE, transform
 from numpy import linspace, cos, sin, sqrt
 from tkinter import filedialog, Tk
-from os import path
+from os import path, startfile
 from webbrowser import open
 
 # couleurs
@@ -1475,6 +1475,18 @@ def clic_param_et_info(coord):
     if bouton_github(coord):
         url = "https://github.com/Nashoba1er/SPIROGRAPHE"
         open(url)
+    if bouton_compte_rendu(coord):
+        # Construire le chemin relatif
+        current_dir = path.dirname(__file__)  # Répertoire du script actuel
+        pdf_path = path.join(current_dir,"présentation", "projet_tech_spirographe-4.pdf")
+
+        if path.exists(pdf_path):
+            startfile(pdf_path)
+        else:
+            print("Fichier introuvable :", pdf_path)
+        # Convertir en chemin absolu et formater en URL compatible
+        absolute_path = path.abspath(pdf_path)
+        open(f"file:///{absolute_path}")
  
 def bouton_github(pos):
     '''
