@@ -1429,9 +1429,9 @@ def menu_param_et_info():
     screen.fill(couleur_param)
     ecriture("Paramètres & Informations",couleur("WHITE"),police_taille*3//2,(window_width/2,3*window_height/20))
     
-    ecriture("Le but de ce projet est de générer un fichier G CODE",couleur("WHITE"),police_taille,(window_width/2,3*window_height/20))
-    ecriture("utilisable par une imprimante 3D",couleur("WHITE"),police_taille,(window_width/2,5*window_height/20))
-    ecriture("Et se basant sur le fonctionnement d'un spirographe",couleur("WHITE"),police_taille,(window_width/2,7*window_height/20))
+    ecriture("Le but de ce projet est de générer un fichier G CODE",couleur("WHITE"),police_taille//2,(window_width/2,5*window_height/20))
+    ecriture("utilisable par une imprimante 3D",couleur("WHITE"),police_taille//2,(window_width/2,6*window_height/20))
+    ecriture("Et se basant sur le fonctionnement d'un spirographe",couleur("WHITE"),police_taille//2,(window_width/2,7*window_height/20))
 
 
     return_arrow((0,0))
@@ -1797,6 +1797,8 @@ while run :
                         run_param_et_info = False
                     if pyEvent.type == MOUSEMOTION :
                         return_arrow(pyEvent.pos)
+                        bouton_couleur(pyEvent.pos)
+                        bouton_ede(pyEvent.pos)
                     if pyEvent.type == MOUSEBUTTONDOWN :
                         clic_param_et_info(pyEvent.pos)
                 display.flip()
