@@ -1373,7 +1373,6 @@ def points3D(theta_max, N, petit_r, grand_r, p,Rsphere) :
     x = []
     y = []
     z = []
-    print (Rsphere)
     for i in range ( N ) :
         new_x = diff_r*cos(theta[i]) + p * cos(q*theta[i])
         new_y = diff_r*sin(theta[i]) + p * sin(q*theta[i])
