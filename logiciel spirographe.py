@@ -3,7 +3,7 @@ from pygame import K_TAB, K_LSHIFT, K_RSHIFT, display, event, QUIT, MOUSEBUTTOND
 from numpy import linspace, cos, sin, sqrt
 from tkinter import filedialog, Tk
 from os import path
-from webbrowser import *
+from webbrowser import open
 
 # couleurs
 
@@ -1472,6 +1472,9 @@ def clic_param_et_info(coord):
     global run_param_et_info
     if return_arrow(coord):
         run_param_et_info = False
+    if bouton_github(coord):
+        url = "https://github.com/Nashoba1er/SPIROGRAPHE"
+        open(url)
  
 def bouton_github(pos):
     '''
@@ -1485,7 +1488,7 @@ def bouton_github(pos):
         renvoie True si le curseur est sur le bouton, False sinon
     '''
     res = False
-    message = "Github"
+    message = "  Github    "
     (cursor_x, cursor_y) = pos
     width = police_taille*3/5*(len(message)+1)
     height = police_taille
@@ -1514,7 +1517,7 @@ def bouton_compte_rendu(pos):
         renvoie True si le curseur est sur le bouton, False sinon
     '''
     res = False
-    message = "Compte_rendu"
+    message = "Compte rendu"
     (cursor_x, cursor_y) = pos
     width = police_taille*3/5*(len(message)+1)
     height = police_taille
