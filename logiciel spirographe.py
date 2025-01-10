@@ -1480,13 +1480,27 @@ def sauvegarde_fichier_gcode(name, content):
             print(f"Erreur lors de la création du fichier : {e}")
     return fichier
 
-def menu_g_code(theta_max):
+def menu_g_code(theta_max, N, petit_r, grand_r, p, Rsphere):
     screen.fill((0, 0, 0))  # Fond noir
     i = 1
     ecriture("Vous vous appretez à sauvegarder un fichier gcode" , (255,255,255), 25, (window_width/2, i*window_height/12))
     ecriture("généré selon les paramètres suivants" , (255,255,255), 25, (window_width/2, (2*i+1)*window_height/24))
     i = i+1.5
-    ecriture("theta max = " + str(theta_max), (255,255,255), 25, (window_width/2, i*window_height/12))
+    i = 2*i+1
+    ecriture(f"theta_max = {theta_max}", (255,255,255),25,(window_width/2, i*window_height/24))
+    i = i+1.5
+    ecriture(f"N = {N}",(255,255,255), 25,(window_width/2, i*window_height/24))
+    i = i+1.5
+    ecriture( f"grand_r = {grand_r}", (255,255,255),25,(window_width/2, i*window_height/24))
+    i = i+1.5
+    ecriture( f"petit_r = {petit_r}", (255,255,255),25,(window_width/2, i*window_height/24))
+    i = i+1
+    ecriture( f"p = {p}", (255,255,255),25,(window_width/2, i*window_height/24))
+    i = i+1
+    if Rsphere == 0 :
+        ecriture( "à plat", (255,255,255),25,(window_width/2, i*window_height/24))
+    elif Rsphere >= (grand_r+p-petit_r) :
+        ecriture(f"Rsphere = {Rsphere}", (255,255,255),25,(window_width/2, i*window_height/24))
     i = i+1
     ecriture("appuyez sur Entrée pour poursuivre", (255,255,255), 25 ,(window_width/2, i*window_height/12))
     i = i+1
@@ -1644,7 +1658,7 @@ while run :
                                     ecrit(current_line)
                             display.flip() #mettre à jour l'affichage
                         if run_g_code:  
-                            menu_g_code(theta_max = 6000.0)
+                            menu_g_code(theta_max = 6000.0, N=10000, petit_r=lines[1], grand_r=lines[0], p=lines[2], Rsphere=0)
                         # Boucle g_code
                         while run_g_code:
                             for Pyevent in event.get():
