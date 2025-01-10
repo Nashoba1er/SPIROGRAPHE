@@ -777,8 +777,8 @@ def menu_choix():
     bouton_cdc((0,0))
     bouton_cdc3D((0,0))
     #bouton_couleur((0,0))
-    bouton_ede((0,0))
-   
+    bouton_param_et_info((0,0))
+
 def bouton_cdc(pos):
     '''
     entrée :
@@ -854,7 +854,7 @@ def bouton_couleur(pos):
     width = police_taille*3/5*(len(message)+1)
     height = police_taille
     pos_x = 8*window_width/10
-    pos_y = 6*window_height/10
+    pos_y = 8*window_height/10
     draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
     if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
         draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
@@ -867,6 +867,35 @@ def bouton_couleur(pos):
     return res
 
 def bouton_ede(pos):
+    '''
+    entrée :
+        pos = (x,y) : la position du curseur
+    effet :
+        affiche le bouton Ellipse dans Ellipse :
+            en blanc si le curseur n'est pas dessus
+            en vert à l'inverse
+    sortie : 
+        renvoie True si le curseur est sur le bouton, False sinon
+    '''
+    res = False
+    message = "Ellipse"
+    (cursor_x, cursor_y) = pos
+    width = police_taille*3/5*(len(message)+1)
+    height = police_taille
+    pos_x = 2*window_width/10
+    pos_y = 8*window_height/10
+    draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
+    if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
+        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("GREEN"),police_taille,(pos_x,pos_y))
+        res = True
+
+    else :
+        draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("WHITE"),police_taille,(pos_x,pos_y))
+    return res
+
+def bouton_param_et_info(pos):
     '''
     entrée :
         pos = (x,y) : la position du curseur
@@ -903,7 +932,7 @@ def clic_menu(pos):
         si on clique :
             sur le bouton cercle dans cercle : met run_cdc à True
     '''
-    global run_cdc, run_couleur, run_cdc3D, run_ede
+    global run_cdc, run_couleur, run_cdc3D, run_param_et_info
 
     if bouton_cdc(pos):
         run_cdc = True
@@ -914,8 +943,8 @@ def clic_menu(pos):
     if bouton_cdc3D(pos):
         run_cdc3D = True
 
-    if bouton_ede(pos):
-        run_ede = True
+    if bouton_param_et_info(pos):
+        run_param_et_info = True
 
 
 #fonctions pour le menu couleur :
@@ -999,7 +1028,8 @@ def menu_cdc3D(numéro):
             draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5-9*window_height/32,2,0.7*window_height/15],0)
     ecrit3D(current_line)
     curseurs_init3D()
-
+    bouton_xy((0,0))
+    bouton_xz((0,0))
     return_arrow((0,0))
 
 def clic_cdc3D(coord, numéro):
@@ -1390,24 +1420,32 @@ def points3D(theta_max, N, petit_r, grand_r, p,Rsphere) :
 
 #fonctions pour le menu ellipse dans ellipse
 
-def menu_ede():
+def menu_param_et_info():
     '''
     effet :
         - affiche des boutons pour changer les couleurs de fond
         - affiche des boutons indiquant les couleurs pour le rendu
     '''
-    screen.fill(couleur_fond)
-    ecriture("à implémenter",couleur("RED"),police_taille,(window_width/2 , window_height/2))
-    return_arrow((0,0))
+    screen.fill(couleur_param)
+    ecriture("Paramètres & Informations",couleur("WHITE"),police_taille*3//2,(window_width/2,3*window_height/20))
+    
+    ecriture("Le but de ce projet est de générer un fichier G CODE",couleur("WHITE"),police_taille,(window_width/2,3*window_height/20))
+    ecriture("utilisable par une imprimante 3D",couleur("WHITE"),police_taille,(window_width/2,5*window_height/20))
+    ecriture("Et se basant sur le fonctionnement d'un spirographe",couleur("WHITE"),police_taille,(window_width/2,7*window_height/20))
 
-def clic_ede(coord):
+
+    return_arrow((0,0))
+    bouton_couleur((0,0))
+    bouton_ede((0,0))
+
+def clic_param_et_info(coord):
     '''
     entrée : les coordonnées du clic
     effet : change la couleur selon le clic
     '''
-    global run_ede
+    global run_param_et_info
     if return_arrow(coord):
-        run_ede = False
+        run_param_et_info = False
  
 
 #fonctions pour le menu G CODE :
@@ -1616,7 +1654,7 @@ run_zoom_schema = False
 run_zoom_rendu = False
 run_couleur = False
 run_cdc3D = False
-run_ede = False
+run_param_et_info = False
 numéro = 2
 run_g_code = False
 
@@ -1630,7 +1668,7 @@ while run :
         if pyEvent.type == MOUSEMOTION :
             bouton_cdc(pyEvent.pos)
             bouton_cdc3D(pyEvent.pos)
-            bouton_ede(pyEvent.pos)
+            bouton_param_et_info(pyEvent.pos)
         if pyEvent.type == MOUSEBUTTONDOWN :
             clic_menu(pyEvent.pos)
             if run_cdc : 
@@ -1750,17 +1788,17 @@ while run :
                         ecrit3D(current_line)
                 display.flip()
                     
-            if run_ede :
-                menu_ede()
-            while run_ede :
+            if run_param_et_info :
+                menu_param_et_info()
+            while run_param_et_info :
                 for pyEvent in event.get():
                     if pyEvent.type == QUIT:
                         run = False
-                        run_ede = False
+                        run_param_et_info = False
                     if pyEvent.type == MOUSEMOTION :
                         return_arrow(pyEvent.pos)
                     if pyEvent.type == MOUSEBUTTONDOWN :
-                        clic_ede(pyEvent.pos)
+                        clic_param_et_info(pyEvent.pos)
                 display.flip()
             menu_choix()
 
