@@ -1317,7 +1317,7 @@ def rendu3D(r1,r2,p,couleur_rendu,numéro, Rsphere):
             flèche_x = centre_x
             flèche_y = centre_y - window_height / 4  # Extrémité supérieure de l'axe
             draw.polygon(screen, couleur("RED"),[(flèche_x, flèche_y - 10),(flèche_x - 5, flèche_y),(flèche_x + 5, flèche_y)])
-            ecriture("x",couleur("RED"),police_taille,(centre_x + window_width / 5, centre_y + window_height / 9))
+            ecriture("x",couleur("RED"),police_taille,(centre_x + window_width / 5, centre_y + window_height / 7))
             ecriture("y",couleur("RED"),police_taille,(centre_x + window_width/20, centre_y - window_height / 4))
         if numéro == 2:
             for i in range(10000):
@@ -1330,7 +1330,7 @@ def rendu3D(r1,r2,p,couleur_rendu,numéro, Rsphere):
             flèche_x = centre_x
             flèche_y = centre_y - window_height / 4  # Extrémité supérieure de l'axe
             draw.polygon(screen, couleur("RED"),[(flèche_x, flèche_y - 10),(flèche_x - 5, flèche_y),(flèche_x + 5, flèche_y)])
-            ecriture("x",couleur("RED"),police_taille,(centre_x + window_width / 5, centre_y + window_height / 9))
+            ecriture("x",couleur("RED"),police_taille,(centre_x + window_width / 5, centre_y + window_height / 7))
             ecriture("z",couleur("RED"),police_taille,(centre_x + window_width/20, centre_y - window_height / 4))
     bouton_gcode((0,0))
 
@@ -1529,11 +1529,7 @@ def sauvegarde_g_code(lines):
     grand_r = float(lines[0])*(window_height/4)/100
     petit_r = float(lines[1])*(window_height/4)/100
     p = float(lines[2])*(window_height/4)/100
-<<<<<<< HEAD
     gcode_name, gcode = write_gcode(12000.0, 100000, petit_r, grand_r, p, 0)
-=======
-    gcode_name, gcode = write_gcode(12000.0, 100000, petit_r, grand_r, p, 0, ep=0.4)
->>>>>>> defb44b336f35c2dea55d8744090261a05de9fca
     chemin_fichier = sauvegarde_fichier_gcode(gcode_name, gcode)
     if chemin_fichier:
         print(f"Fichier enregistré à : {chemin_fichier}")
