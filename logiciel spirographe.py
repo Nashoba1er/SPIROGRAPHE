@@ -775,7 +775,7 @@ def menu_choix():
     #affiche les boutons sans les considérer commme sélectionné
     bouton_cdc((0,0))
     bouton_cdc3D((0,0))
-    bouton_couleur((0,0))
+    #bouton_couleur((0,0))
     bouton_ede((0,0))
    
 def bouton_cdc(pos):
@@ -795,7 +795,7 @@ def bouton_cdc(pos):
     width = police_taille*3/5*(len(message)+1)
     height = police_taille
     pos_x = 8*window_width/10
-    pos_y = 3*window_height/10
+    pos_y = 4*window_height/10
     draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
     if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
         draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
@@ -870,7 +870,7 @@ def bouton_ede(pos):
     entrée :
         pos = (x,y) : la position du curseur
     effet :
-        affiche le bouton Ellipse dans Ellipse :
+        affiche le bouton Param & Infos :
             en blanc si le curseur n'est pas dessus
             en vert à l'inverse
     sortie : 
@@ -881,7 +881,7 @@ def bouton_ede(pos):
     (cursor_x, cursor_y) = pos
     width = police_taille*3/5*(len(message)+1)
     height = police_taille
-    pos_x = 3*window_width/10
+    pos_x = window_width/2
     pos_y = 8*window_height/10
     draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
     if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
@@ -915,7 +915,7 @@ def clic_menu(pos):
 
     if bouton_ede(pos):
         run_ede = True
-    
+
 
 #fonctions pour le menu couleur :
 
@@ -1621,7 +1621,6 @@ while run :
         if pyEvent.type == MOUSEMOTION :
             bouton_cdc(pyEvent.pos)
             bouton_cdc3D(pyEvent.pos)
-            bouton_couleur(pyEvent.pos)
             bouton_ede(pyEvent.pos)
         if pyEvent.type == MOUSEBUTTONDOWN :
             clic_menu(pyEvent.pos)
