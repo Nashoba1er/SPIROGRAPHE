@@ -1,7 +1,8 @@
-from pygame import init, draw, font, K_BACKSPACE, key, K_RETURN, K_DOWN, K_UP, KEYDOWN, K_LEFT, K_RIGHT, KEYUP, time
-from pygame import K_TAB, K_LSHIFT, K_RSHIFT, display, event, QUIT, MOUSEBUTTONDOWN, MOUSEMOTION, MOUSEBUTTONUP, K_ESCAPE
+from pygame import init, draw, font, K_BACKSPACE, key, K_RETURN, K_DOWN, K_UP, KEYDOWN, K_LEFT, K_RIGHT, KEYUP, time, image
+from pygame import K_TAB, K_LSHIFT, K_RSHIFT, display, event, QUIT, MOUSEBUTTONDOWN, MOUSEMOTION, MOUSEBUTTONUP, K_ESCAPE, transform
 from numpy import linspace, cos, sin, sqrt
 from tkinter import filedialog, Tk
+from os import path
 
 # couleurs
 
@@ -1028,6 +1029,23 @@ def menu_cdc3D(numéro):
             draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5-9*window_height/32,2,0.7*window_height/15],0)
     ecrit3D(current_line)
     curseurs_init3D()
+
+    script_dir = path.dirname(__file__)  # Dossier où se trouve le script
+    img_path = path.join(script_dir, "img", "sphere.png")  # Sous-dossier "img"
+
+    # Vérification du chemin (utile pour le débogage)
+    print(f"Chemin de l'image utilisé : {img_path}")
+
+    # Charger et redimensionner l'image
+    img = image.load(img_path)  # Charger l'image
+    img = transform.scale(img, (window_width // 18, window_width // 18))  # Redimensionner
+
+    
+    screen.blit(img, (5.4*window_width/6, window_height/20))
+    #screen.blit(img, (5.4*window_width/6+1, window_height/11))
+    #screen.blit(img, (5.4*window_width/6, window_height/11+1))
+    #screen.blit(img, (5.4*window_width/6+1, window_height/11+1))
+
     bouton_xy((0,0))
     bouton_xz((0,0))
     return_arrow((0,0))
