@@ -1534,6 +1534,9 @@ def clic_g_code(pos):
             p = 35,
             Rsphere = 175
         )
+        run_g_code = False
+        menu_cercle_dans_cercle_init(lines)
+        ecrit(current_line)
     if return_arrow(pos):
         run_g_code = False
 
@@ -1656,6 +1659,8 @@ while run :
                                         grand_r = 100,
                                         p = 35,
                                         Rsphere = 175)
+                                    menu_cercle_dans_cercle_init(lines)
+                                    ecrit(current_line)
                                 if Pyevent.type == MOUSEBUTTONDOWN:
                                     clic_g_code(Pyevent.pos)
                                 if Pyevent.type == MOUSEMOTION:
