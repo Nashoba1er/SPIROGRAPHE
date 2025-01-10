@@ -466,6 +466,11 @@ def bouge_curseur(coord,dragging):
 
     # mise à jour de la valeur du champ : 
     param = int(((pos_curseur_x-pos_x+width/2))/width * 100)
+    if param > 100 :
+        param = 100
+    if param < 0:
+        param = 0
+
     lines[num_curseur] = str(param)
 
     if d_equal_r and num_curseur == 1:
