@@ -263,23 +263,6 @@ def points (theta_max, N, petit_r, grand_r, p) :
 
     return x, y
 
-def points3D(theta_max, N, petit_r, grand_r, p) :
-    theta = linspace(0.0, theta_max, N)
-    diff_r = grand_r - petit_r
-    q = 1.0 - (grand_r/petit_r) #arrangez vous pour que ce rapport soit différent de 1/2
-    x = []
-    y = []
-    z = []
-    for i in range ( N ) :
-        new_x = diff_r*cos(theta[i]) + p * cos(q*theta[i])
-        new_y = diff_r*sin(theta[i]) + p * sin(q*theta[i])
-        new_z = - sqrt(grand_r**2 - new_x**2 + new_y**2)
-        x.append(new_x)
-        y.append(new_y)
-        z.append(new_z)
-    
-    return x, y, z
-
 def rendu(r1,r2,p,couleur_rendu):
     '''
     entrée :
@@ -296,48 +279,6 @@ def rendu(r1,r2,p,couleur_rendu):
         point_x, point_y = points(6000.0, 10000, r1, r2, p)
         for i in range(10000):
             draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),1)
-    bouton_gcode((0,0))
-
-def rendu3D(r1,r2,p,couleur_rendu,numéro):
-    '''
-    entrée :
-        r1 : rayon du grand cercle
-        r2 : rayon du petit cercle
-        p : distance entre le centre du petit cercle et le point P
-        couleur_rendu : la couleur du rendu
-    effet :
-        affiche le rendu et le bouton_gcode
-    '''
-    centre_x, centre_y = 3*window_width/4,window_height/2
-    if not (r1 > window_height/4 or r2 >= r1 or p > r2) : 
-        #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
-        point_x, point_y, point_z = points3D(6000.0, 10000, r1, r2, p)
-        if numéro == 1:
-            for i in range(10000):
-                draw.circle(screen,couleur_rendu,(centre_x+1.7*point_x[i],centre_y + window_height/10+1.7*point_y[i]),1)
-            draw.line(screen, couleur("RED"), (centre_x - window_width/5, centre_y+window_height/10), (centre_x + window_width/5, centre_y+window_height/10), 2)
-            flèche_x = centre_x + window_width / 5
-            flèche_y = centre_y + window_height / 10
-            draw.polygon(screen, couleur("RED"),[(flèche_x + 10, flèche_y),(flèche_x, flèche_y - 5),(flèche_x, flèche_y + 5)])
-            draw.line(screen, couleur("RED"), (centre_x, centre_y+window_height/2.4), (centre_x , centre_y-window_height/4), 2)
-            flèche_x = centre_x
-            flèche_y = centre_y - window_height / 4  # Extrémité supérieure de l'axe
-            draw.polygon(screen, couleur("RED"),[(flèche_x, flèche_y - 10),(flèche_x - 5, flèche_y),(flèche_x + 5, flèche_y)])
-            ecriture("x",couleur("RED"),police_taille,(centre_x + window_width / 5, centre_y + window_height / 9))
-            ecriture("y",couleur("RED"),police_taille,(centre_x + window_width/20, centre_y - window_height / 4))
-        if numéro == 2:
-            for i in range(10000):
-                draw.circle(screen,couleur_rendu,(centre_x+1.7*point_x[i],centre_y + window_height/5 +1.7*point_z[i]),1)
-            draw.line(screen, couleur("RED"), (centre_x - window_width/5, centre_y+window_height/10), (centre_x + window_width/5, centre_y+window_height/10), 2)
-            flèche_x = centre_x + window_width / 5
-            flèche_y = centre_y + window_height / 10
-            draw.polygon(screen, couleur("RED"),[(flèche_x + 10, flèche_y),(flèche_x, flèche_y - 5),(flèche_x, flèche_y + 5)])
-            draw.line(screen, couleur("RED"), (centre_x, centre_y+window_height/2.4), (centre_x , centre_y-window_height/4), 2)
-            flèche_x = centre_x
-            flèche_y = centre_y - window_height / 4  # Extrémité supérieure de l'axe
-            draw.polygon(screen, couleur("RED"),[(flèche_x, flèche_y - 10),(flèche_x - 5, flèche_y),(flèche_x + 5, flèche_y)])
-            ecriture("x",couleur("RED"),police_taille,(centre_x + window_width / 5, centre_y + window_height / 9))
-            ecriture("z",couleur("RED"),police_taille,(centre_x + window_width/20, centre_y - window_height / 4))
     bouton_gcode((0,0))
 
 def menu_cercle_dans_cercle_init(lines):
@@ -400,35 +341,6 @@ def zoom_rendu(lines):
         point_x, point_y = points(12000.0, 75000, r1, r2, p)
         for i in range(75000):
             draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),1)
-    else :
-        run_zoom_rendu = False
-
-def zoom_rendu3D(lines, numéro):
-    '''
-    entrée :
-        r1 : rayon du grand cercle
-        r2 : rayon du petit cercle
-        p : distance entre le centre du petit cercle et le point P
-        couleur_rendu : la couleur du rendu
-    effet :
-        affiche le rendu
-    '''
-    global run_zoom_rendu,couleur_g_cercle,couleur_p_cercle,couleur_fond
-    if is_float(lines[0]) and is_float(lines[1]) and is_float(lines[2]):
-        r1 = float(lines[0])*(window_height/2)/100
-        r2 = float(lines[1])*(window_height/2)/100
-        p = float(lines[2])*(window_height/2)/100
-    centre_x, centre_y = window_width/2,window_height/2
-    if not (r1 > window_height/2 or r2 >= r1 or p > r2) : 
-        screen.fill(couleur_fond)
-        #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
-        point_x, point_y, point_z = points3D(12000.0, 75000, r1, r2, p)
-        if numéro == 1:
-            for i in range(75000):
-                draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),1)
-        if numéro == 2:
-            for i in range(75000):
-                draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_z[i]),1)
     else :
         run_zoom_rendu = False
 
@@ -557,6 +469,43 @@ def bouge_curseur(coord,dragging):
     ecrit(num_curseur)
     curseur(num_curseur)
     
+def bouton_d_equal_r(pos):
+    '''
+    entrée :
+        pos = (x,y) : la position du curseur
+    effet :
+        affiche le bouton r= d :
+            en blanc si le curseur n'est pas dessus et qu'il n'est pas sélectionné
+            en vert à l'inverse
+    sortie : 
+        renvoie True si le curseur est sur le bouton, False sinon
+    '''
+    global d_equal_r
+    res = False
+    message = " d = r "
+    (cursor_x, cursor_y) = pos
+    width = police_taille*3/5*(len(message)+1) / 2
+    height = police_taille *3 / 4
+    pos_x = window_width/12
+    pos_y = window_height/2 + 9*window_height/32 + window_height/30
+    draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
+    # Si je suis sur le bouton : 
+    if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
+        res = True
+    # Si je suis sur le bouton et qu'il n'est pas sélectionné : je met en vert
+    if res and not d_equal_r:
+        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("GREEN"),police_taille//2,(pos_x,pos_y))
+    # Si je ne suis pas sur le bouton mais qu'il est sélectionné : je met en vert
+    elif not res and d_equal_r :
+        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("GREEN"),police_taille//2,(pos_x,pos_y))
+    # Sinon je met en blanc
+    else : 
+        draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("WHITE"),police_taille//2,(pos_x,pos_y))
+
+    return res
 
 # fonctions d'écriture :
 
@@ -653,6 +602,13 @@ def input_to_text(event):
                     lines[current_line] += letter
                 cursor_position += 1
                 modifie_rayons(lines)
+    if (current_line == 1) and d_equal_r :
+        lines[current_line+1] = lines[current_line]
+        modifie_rayons(lines)
+    if (current_line == 2) and d_equal_r :
+        lines[current_line-1] = lines[current_line]
+        modifie_rayons(lines)
+
 
 def ecrit(num_champ):
     '''
@@ -724,11 +680,14 @@ def clic(coord):
         si le clic est sur le bouton flèche retour :
             met la variable run_cdc à false
 
+        si le clic est sur le bouton d = r :
+            met la variable d_equal_r true si elle était à false et inversement
+
         (si le clic est sur le bouton G CODE :)
         (    ouvre le menu G CODE )
         (    n'ouvre pas le zoom_rendu)
     '''
-    global current_line, cursor_position, run_zoom_rendu, run_cdc, run_zoom_schema, dragging
+    global current_line, cursor_position, run_zoom_rendu, run_cdc, run_zoom_schema, dragging, d_equal_r
     coord_x, coord_y = coord
     espace = window_height/4
     current_line1_y = 9*window_height/32
@@ -763,6 +722,13 @@ def clic(coord):
     #clic sur la flèche retour
     if return_arrow(coord):
         run_cdc = False
+    #clic sur le bouton d = r
+    if bouton_d_equal_r(coord):
+        d_equal_r = not d_equal_r
+        if d_equal_r :
+            lines[2] = lines[1]
+            ecrit(2)
+
 
     if bouton_gcode(coord):
         print("clic sur le bouton G CODE")
@@ -1301,6 +1267,94 @@ def curseur3D(num_champ):
     else : 
         draw.rect(screen,couleur_curseur,[pos_x - width/2,pos_y,width,2],0)
 
+def rendu3D(r1,r2,p,couleur_rendu,numéro):
+    '''
+    entrée :
+        r1 : rayon du grand cercle
+        r2 : rayon du petit cercle
+        p : distance entre le centre du petit cercle et le point P
+        couleur_rendu : la couleur du rendu
+    effet :
+        affiche le rendu et le bouton_gcode
+    '''
+    centre_x, centre_y = 3*window_width/4,window_height/2
+    if not (r1 > window_height/4 or r2 >= r1 or p > r2) : 
+        #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
+        point_x, point_y, point_z = points3D(6000.0, 10000, r1, r2, p)
+        if numéro == 1:
+            for i in range(10000):
+                draw.circle(screen,couleur_rendu,(centre_x+1.7*point_x[i],centre_y + window_height/10+1.7*point_y[i]),1)
+            draw.line(screen, couleur("RED"), (centre_x - window_width/5, centre_y+window_height/10), (centre_x + window_width/5, centre_y+window_height/10), 2)
+            flèche_x = centre_x + window_width / 5
+            flèche_y = centre_y + window_height / 10
+            draw.polygon(screen, couleur("RED"),[(flèche_x + 10, flèche_y),(flèche_x, flèche_y - 5),(flèche_x, flèche_y + 5)])
+            draw.line(screen, couleur("RED"), (centre_x, centre_y+window_height/2.4), (centre_x , centre_y-window_height/4), 2)
+            flèche_x = centre_x
+            flèche_y = centre_y - window_height / 4  # Extrémité supérieure de l'axe
+            draw.polygon(screen, couleur("RED"),[(flèche_x, flèche_y - 10),(flèche_x - 5, flèche_y),(flèche_x + 5, flèche_y)])
+            ecriture("x",couleur("RED"),police_taille,(centre_x + window_width / 5, centre_y + window_height / 9))
+            ecriture("y",couleur("RED"),police_taille,(centre_x + window_width/20, centre_y - window_height / 4))
+        if numéro == 2:
+            for i in range(10000):
+                draw.circle(screen,couleur_rendu,(centre_x+1.7*point_x[i],centre_y + window_height/5 +1.7*point_z[i]),1)
+            draw.line(screen, couleur("RED"), (centre_x - window_width/5, centre_y+window_height/10), (centre_x + window_width/5, centre_y+window_height/10), 2)
+            flèche_x = centre_x + window_width / 5
+            flèche_y = centre_y + window_height / 10
+            draw.polygon(screen, couleur("RED"),[(flèche_x + 10, flèche_y),(flèche_x, flèche_y - 5),(flèche_x, flèche_y + 5)])
+            draw.line(screen, couleur("RED"), (centre_x, centre_y+window_height/2.4), (centre_x , centre_y-window_height/4), 2)
+            flèche_x = centre_x
+            flèche_y = centre_y - window_height / 4  # Extrémité supérieure de l'axe
+            draw.polygon(screen, couleur("RED"),[(flèche_x, flèche_y - 10),(flèche_x - 5, flèche_y),(flèche_x + 5, flèche_y)])
+            ecriture("x",couleur("RED"),police_taille,(centre_x + window_width / 5, centre_y + window_height / 9))
+            ecriture("z",couleur("RED"),police_taille,(centre_x + window_width/20, centre_y - window_height / 4))
+    bouton_gcode((0,0))
+
+def zoom_rendu3D(lines, numéro):
+    '''
+    entrée :
+        r1 : rayon du grand cercle
+        r2 : rayon du petit cercle
+        p : distance entre le centre du petit cercle et le point P
+        couleur_rendu : la couleur du rendu
+    effet :
+        affiche le rendu
+    '''
+    global run_zoom_rendu,couleur_g_cercle,couleur_p_cercle,couleur_fond
+    if is_float(lines[0]) and is_float(lines[1]) and is_float(lines[2]):
+        r1 = float(lines[0])*(window_height/2)/100
+        r2 = float(lines[1])*(window_height/2)/100
+        p = float(lines[2])*(window_height/2)/100
+    centre_x, centre_y = window_width/2,window_height/2
+    if not (r1 > window_height/2 or r2 >= r1 or p > r2) : 
+        screen.fill(couleur_fond)
+        #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
+        point_x, point_y, point_z = points3D(12000.0, 75000, r1, r2, p)
+        if numéro == 1:
+            for i in range(75000):
+                draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),1)
+        if numéro == 2:
+            for i in range(75000):
+                draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_z[i]),1)
+    else :
+        run_zoom_rendu = False
+
+def points3D(theta_max, N, petit_r, grand_r, p) :
+    theta = linspace(0.0, theta_max, N)
+    diff_r = grand_r - petit_r
+    q = 1.0 - (grand_r/petit_r) #arrangez vous pour que ce rapport soit différent de 1/2
+    x = []
+    y = []
+    z = []
+    for i in range ( N ) :
+        new_x = diff_r*cos(theta[i]) + p * cos(q*theta[i])
+        new_y = diff_r*sin(theta[i]) + p * sin(q*theta[i])
+        new_z = - sqrt(grand_r**2 - new_x**2 + new_y**2)
+        x.append(new_x)
+        y.append(new_y)
+        z.append(new_z)
+    
+    return x, y, z
+
 #fonctions pour le menu ellipse dans ellipse
 
 def menu_ede():
@@ -1362,6 +1416,7 @@ couleur_rendu = couleur("WHITE")
 couleur_fond = couleur("C1_BLUE")
 couleur_param = couleur("BLEU_JOLI")
 dragging = -1
+d_equal_r = False
 
 run = True
 run_cdc = False
@@ -1423,10 +1478,13 @@ while run :
 
                     if pyEvent.type == KEYDOWN:
                         input_to_text(pyEvent)  # Appel à la fonction pour gérer l'input
+                        if d_equal_r:
+                            ecrit(2)
                         ecrit(current_line)
                     if pyEvent.type == MOUSEMOTION:
                         bouton_gcode(pyEvent.pos)
                         return_arrow(pyEvent.pos)
+                        bouton_d_equal_r(pyEvent.pos)
                     # Relâchement du clic
                     if pyEvent.type == MOUSEBUTTONUP:
                         dragging = -1  # On arrête de déplacer l'objet

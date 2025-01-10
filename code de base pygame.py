@@ -45,7 +45,7 @@ while running:
             running = False
 
     # Remplir l'écran avec la couleur bleue
-    ecriture("prout oe oe oe",(0,255,0),360,(screen_width/2,screen_height/2))
+    ecriture("prout oe oe oe",(0,255,0),36,(screen_width/2,screen_height/2))
 
     # Mettre à jour l'écran
     display.flip()

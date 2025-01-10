@@ -22,18 +22,7 @@ def points_3d (theta_max, N, petit_r, grand_r, p, Rsphere) :
         z = sqrt(Rsphere*Rsphere - new_x*new_x - new_y*new_y) - sqrt (Rsphere*Rsphere - max_dist*max_dist)
         res.append((new_x, new_y, z))
     else:
-      max_dist_opp = 2*Rsphere - max_dist
-      for i in range (N) :
-        new_x = diff_r*np.cos(theta[i]) + p * np.cos(q*theta[i])
-        new_y = diff_r*np.sin(theta[i]) + p * np.sin(q*theta[i])
-        if (new_x*new_x + new_y*new_y <= Rsphere*Rsphere) :
-          z = sqrt(Rsphere*Rsphere - new_x*new_x - new_y*new_y) + sqrt (Rsphere*Rsphere - max_dist_opp*max_dist_opp)
-        else :
-          norm = sqrt(new_x*new_x + new_y*new_y)
-          new_x_opp = 2*Rsphere*new_x/norm - new_x
-          new_y_opp = 2*Rsphere*new_y/norm - new_y
-          z = -sqrt(Rsphere*Rsphere - new_x_opp*new_x_opp - new_y_opp*new_y_opp) + sqrt (Rsphere*Rsphere - max_dist_opp*max_dist_opp)
-        res.append((new_x_opp, new_y_opp, z))
+      print("rsphere trop petit")
     return res
 
 def generate_gcode_points(points, extrusion_rate=0.05, layer_height=0.2):
