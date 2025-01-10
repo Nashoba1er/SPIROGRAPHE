@@ -648,6 +648,7 @@ def ecrit(num_champ):
     screen.blit(txt_surf, (indent_x, indent_y + num_champ*espace))
     draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
     curseur(num_champ)
+    ecriture("%",couleur("BLACK"),police_taille,(indent_x + 11.5*taille_carac, (num_champ)*espace+current_line1_y+window_height/30))
     display.update()
 
 def is_float(value):
@@ -979,10 +980,11 @@ def menu_cdc3D(numéro):
     screen.fill(couleur_fond)
 
     draw.rect(screen,couleur_param,[0,0,window_width/2,window_height],0)
-    
-    ecriture("Saisie des paramètres",couleur("BLACK"),police_taille,(window_width/4,window_height/8))
+    draw.rect(screen,couleur_param,[0,window_height/5+window_height/40-window_height/50,window_width/2, police_taille*1.3])
+    S_max = float(lines2[1]) - float(lines2[2]) + float(lines2[3]) 
     ecriture("Rayon de la sphère :",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5 + window_height/40))
-    ecriture("(R max = 100)",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
+    ecriture("(S max = "+str(S_max)+")",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
+    ecriture("Saisie des paramètres",couleur("BLACK"),police_taille,(window_width/4,window_height/8))
     ecriture("Rayon du grand cercle",couleur("BLACK"),int(3/5*police_taille),(window_width/4,2*window_height/5+ window_height/40))
     ecriture("(R max = 100)",couleur("BLACK"),int(3/5*police_taille),(window_width/4,2*window_height/5+window_height/40 + window_height/30))
     ecriture("Rayon du petit cercle",couleur("BLACK"),int(3/5*police_taille),(window_width/4,3*window_height/5+ window_height/32))
@@ -1184,6 +1186,12 @@ def modifie_rayons3D(lines2,numéro):
         p = float(lines2[3])*(window_height/4)/100
 
         rendu3D(r1,r2,p,couleur_rendu,numéro,Rsph)
+    draw.rect(screen,couleur_param,[0,window_height/5+window_height/40-window_height/50,window_width/2, police_taille*1.3])
+    S_max = float(lines2[1]) - float(lines2[2]) + float(lines2[3]) 
+    ecriture("Rayon de la sphère :",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5 + window_height/40))
+    ecriture("(S max = "+str(S_max)+")",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
+
+    
 
 def bouton_xy(pos):
     #Ajout pour les boutons
@@ -1248,6 +1256,7 @@ def ecrit3D(num_champ):
     screen.blit(txt_surf, (indent_x, indent_y + num_champ*espace))
     draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5-9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
     curseur3D(num_champ)
+    ecriture("%",couleur("BLACK"),police_taille,(indent_x + 11.5*taille_carac, (num_champ)*espace+current_line1_y+window_height/30))
     display.update()
 
 def champ3D(num_champ):
