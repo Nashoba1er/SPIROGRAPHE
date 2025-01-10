@@ -647,6 +647,7 @@ def ecrit(num_champ):
     screen.blit(txt_surf, (indent_x, indent_y + num_champ*espace))
     draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
     curseur(num_champ)
+    ecriture("%",couleur("BLACK"),police_taille,(indent_x + 11.5*taille_carac, (num_champ)*espace+current_line1_y+window_height/30))
     display.update()
 
 def is_float(value):
