@@ -321,8 +321,6 @@ def zoom_schema(lines):
         zoom_cercles(r1,r2,p,couleur_g_cercle,couleur_p_cercle,couleur_rendu,couleur_fond)
     else :
         run_zoom_schema = False
-    
-    return_arrow((0,0))
 
 def zoom_rendu(lines):
     '''
@@ -348,8 +346,6 @@ def zoom_rendu(lines):
             draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),1)
     else :
         run_zoom_rendu = False
-    
-    return_arrow((0,0))
 
 def curseurs_init():
     '''
@@ -491,8 +487,6 @@ def bouge_curseur(coord,dragging):
     ecrit(num_curseur)
     curseur(num_curseur)
 
-
-    
 def bouton_d_equal_r(pos):
     '''
     entrée :
@@ -796,7 +790,7 @@ def bouton_cdc(pos):
         renvoie True si le curseur est sur le bouton, False sinon
     '''
     res = False
-    message = "Cercle dans Cercle"
+    message = "Spiro 2D"
     (cursor_x, cursor_y) = pos
     width = police_taille*3/5*(len(message)+1)
     height = police_taille
@@ -825,7 +819,7 @@ def bouton_cdc3D(pos):
         renvoie True si le curseur est sur le bouton, False sinon
     '''
     res = False
-    message = "demi-sphère"
+    message = "Spiro 3D"
     (cursor_x, cursor_y) = pos
     width = police_taille*3/5*(len(message)+1)
     height = police_taille
@@ -883,7 +877,7 @@ def bouton_ede(pos):
         renvoie True si le curseur est sur le bouton, False sinon
     '''
     res = False
-    message = "Ellipse dans Ellipse"
+    message = "Param & Infos"
     (cursor_x, cursor_y) = pos
     width = police_taille*3/5*(len(message)+1)
     height = police_taille
@@ -1363,8 +1357,6 @@ def zoom_rendu3D(lines2, numéro):
                 draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_z[i]),1)
     else :
         run_zoom_rendu = False
-    
-    return_arrow((0,0))
 
 def points3D(theta_max, N, petit_r, grand_r, p,Rsphere) :
     theta = linspace(0.0, theta_max, N)
@@ -1373,6 +1365,7 @@ def points3D(theta_max, N, petit_r, grand_r, p,Rsphere) :
     x = []
     y = []
     z = []
+    print (Rsphere)
     for i in range ( N ) :
         new_x = diff_r*cos(theta[i]) + p * cos(q*theta[i])
         new_y = diff_r*sin(theta[i]) + p * sin(q*theta[i])
@@ -1529,11 +1522,7 @@ def sauvegarde_g_code(lines):
     grand_r = float(lines[0])*(window_height/4)/100
     petit_r = float(lines[1])*(window_height/4)/100
     p = float(lines[2])*(window_height/4)/100
-<<<<<<< HEAD
     gcode_name, gcode = write_gcode(12000.0, 100000, petit_r, grand_r, p, 0)
-=======
-    gcode_name, gcode = write_gcode(12000.0, 100000, petit_r, grand_r, p, 0, ep=0.4)
->>>>>>> defb44b336f35c2dea55d8744090261a05de9fca
     chemin_fichier = sauvegarde_fichier_gcode(gcode_name, gcode)
     if chemin_fichier:
         print(f"Fichier enregistré à : {chemin_fichier}")
@@ -1654,8 +1643,6 @@ while run :
                                     run = False
                                     run_cdc = False
                                     run_zoom_schema = False
-                                if pyEvent.type == MOUSEMOTION:
-                                    return_arrow(pyEvent.pos)
                                 if pyEvent.type == MOUSEBUTTONDOWN :
                                     run_zoom_schema = False
                                     menu_cercle_dans_cercle_init(lines)
@@ -1669,8 +1656,6 @@ while run :
                                     run_cdc = False
                                     run_zoom_rendu = False 
                                     run = False
-                                if pyEvent.type == MOUSEMOTION:
-                                    return_arrow(pyEvent.pos)
                                 if pyEvent.type == MOUSEBUTTONDOWN :
                                     run_zoom_rendu = False
                                     menu_cercle_dans_cercle_init(lines)
@@ -1691,10 +1676,10 @@ while run :
                                     menu_cercle_dans_cercle_init(lines)
                                     ecrit(current_line)
                                 if Pyevent.type == MOUSEBUTTONDOWN:
-                                    clic_g_code(pyEvent.pos)
+                                    clic_g_code(Pyevent.pos)
                                 if Pyevent.type == MOUSEMOTION:
-                                    bouton_save_g_code(pyEvent.pos)
-                                    return_arrow(pyEvent.pos)
+                                    bouton_save_g_code(Pyevent.pos)
+                                    return_arrow(Pyevent.pos)
                             display.flip()
 
                     if pyEvent.type == KEYDOWN:
@@ -1747,8 +1732,6 @@ while run :
                                     run_cdc = False
                                     run_zoom_rendu = False 
                                     run = False
-                                if pyEvent.type == MOUSEMOTION:
-                                    return_arrow(pyEvent.pos)
                                 if pyEvent.type == MOUSEBUTTONDOWN :
                                     run_zoom_rendu = False
                                     menu_cdc3D(numéro)
