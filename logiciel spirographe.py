@@ -1396,7 +1396,6 @@ def clic_ede(coord):
 
 #fonctions pour le menu G CODE :
 
-
 def points_3d (theta_max, N, petit_r, grand_r, p, Rsphere) :
   #retourne la liste des points en 3D de coordonée z qui varie selon le rayon Rsphere si (grand_r-petit_r+p)<=Rpshere
   #retourne la liste des points en 3D de coordonée z fixe égale à 0 si Rsphere = 0
@@ -1496,8 +1495,12 @@ def menu_g_code(theta_max):
 
     display.flip()
 
-def sauvegarde_g_code(theta_max, N, petit_r, grand_r, p, Rsphere):
-    gcode_name, gcode = write_gcode (theta_max, N, petit_r, grand_r, p, Rsphere)
+def sauvegarde_g_code(lines):
+    global window_height,window_width
+    grand_r = float(lines[0])*(window_height/4)/100
+    petit_r = float(lines[1])*(window_height/4)/100
+    p = float(lines[2])*(window_height/4)/100
+    gcode_name, gcode = write_gcode(12000.0, 100000, petit_r, grand_r, p, 0)
     chemin_fichier = sauvegarde_fichier_gcode(gcode_name, gcode)
     if chemin_fichier:
         print(f"Fichier enregistré à : {chemin_fichier}")
@@ -1508,32 +1511,25 @@ def bouton_save_g_code(pos):
     message = "Sauvegarder G CODE"
     (cursor_x, cursor_y) = pos
     police_taille2 = police_taille-8
-    width = police_taille2*3/5*(len(message)+1)
-    height = police_taille2
+    width = police_taille2*3/5*(len(message)+1)*2
+    height = police_taille2*2
     pos_x = window_width/2
     pos_y = 8*window_height/10
     draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
     if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
         draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
-        ecriture(message,couleur("GREEN"),police_taille2,(pos_x,pos_y))
+        ecriture(message,couleur("GREEN"),police_taille2*2,(pos_x,pos_y))
         res = True
 
     else :
         draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
-        ecriture(message,couleur("WHITE"),police_taille2,(pos_x,pos_y))
+        ecriture(message,couleur("WHITE"),police_taille2*2,(pos_x,pos_y))
     return res
 
 def clic_g_code(pos):
     global run_g_code
     if bouton_save_g_code(pos):
-        sauvegarde_g_code(
-            theta_max = 6000.0,
-            N = 100000,
-            petit_r = 39,
-            grand_r = 100,
-            p = 35,
-            Rsphere = 175
-        )
+        sauvegarde_g_code(lines)
         run_g_code = False
         menu_cercle_dans_cercle_init(lines)
         ecrit(current_line)
@@ -1654,13 +1650,7 @@ while run :
                                     run = False
                                 if Pyevent.type == KEYDOWN and Pyevent.key == K_RETURN:  # Appuyer sur Entrée pour sauvegarder
                                     run_g_code = False
-                                    sauvegarde_g_code(
-                                        theta_max = 6000.0,
-                                        N = 100000,
-                                        petit_r = 39,
-                                        grand_r = 100,
-                                        p = 35,
-                                        Rsphere = 175)
+                                    sauvegarde_g_code(lines)
                                     menu_cercle_dans_cercle_init(lines)
                                     ecrit(current_line)
                                 if Pyevent.type == MOUSEBUTTONDOWN:
