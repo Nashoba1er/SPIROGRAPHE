@@ -1539,6 +1539,8 @@ def clic_g_code(pos):
         ecrit(current_line)
     if return_arrow(pos):
         run_g_code = False
+        menu_cercle_dans_cercle_init(lines)
+        ecrit(current_line)
 
 ## affichage
 
