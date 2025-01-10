@@ -1025,7 +1025,7 @@ def clic_cdc3D(coord, numéro):
     
     global current_line, cursor_position, run_zoom_rendu, run_cdc, run_zoom_schema, dragging
     coord_x, coord_y = coord
-    espace = window_height/4
+    espace = window_height/5
     current_line1_y = 9*window_height/32
     current_line_x = window_width/8
     height = window_height/15
@@ -1033,16 +1033,16 @@ def clic_cdc3D(coord, numéro):
     taille_carac = 3/5 * police_taille
     taille_curseur = 0.7*window_height/15
     
-    for i in range(3):
+    for i in range(4):
         if (coord_x > current_line_x and coord_x < current_line_x  + width and coord_y > (i*espace)+current_line1_y and coord_y < (i*espace)+current_line1_y+height) :
             # je suis dans le champ i
-            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,taille_curseur],0)
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,taille_curseur],0)
             current_line = i
-            cursor_position = len(lines[current_line])
-            for carac in range(len(lines[current_line])):
-                if (coord_x < current_line_x + (len(lines[current_line])-carac)*taille_carac) :
-                    cursor_position = len(lines[current_line])-carac - 1
-            draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,taille_curseur],0)
+            cursor_position = len(lines2[current_line])
+            for carac in range(len(lines2[current_line])):
+                if (coord_x < current_line_x + (len(lines2[current_line])-carac)*taille_carac) :
+                    cursor_position = len(lines2[current_line])-carac - 1
+            draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,taille_curseur],0)
         
         # Vérifie si le clic est sur un curseur
         if coord_y > (i)*espace+current_line1_y + 2 * window_height/32 and coord_y < (i)*espace+current_line1_y + 4 * window_height/32 :
@@ -1094,54 +1094,54 @@ def input_to_text3D(event,numéro):
         - ESCAPE : revient au menu précédent (met run_cdc à False)
         - any letter : écrit la touche qu'on vient de taper
     '''
-    global current_line, lines, cursor_position, key_press_times, run_cdc
+    global current_line, lines2, cursor_position, key_press_times, run_cdc
     taille_carac = 3/5 * police_taille
     keys = key.get_pressed()
-    longueur_current_line = len(lines[current_line]) 
+    longueur_current_line = len(lines2[current_line]) 
 
     if event.key == K_BACKSPACE:
         # Si Retour arrière est appuyé
         if longueur_current_line > 0 and cursor_position > 0:
             if cursor_position == 1 :
-                lines[current_line] = lines[current_line][1:]
+                lines2[current_line] = lines2[current_line][1:]
             elif cursor_position == (longueur_current_line) :
-                lines[current_line] = lines[current_line][:-1]
+                lines2[current_line] = lines2[current_line][:-1]
             else :
-                lines[current_line] = lines[current_line][:(cursor_position-1)] + lines[current_line][(cursor_position):]  # Supprime le dernier caractère
+                lines2[current_line] = lines2[current_line][:(cursor_position-1)] + lines2[current_line][(cursor_position):]  # Supprime le dernier caractère
             cursor_position -= 1
     elif event.key == K_RETURN:
         # Si 'Entrée' est appuyé,
         if current_line < 2:
             draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
             current_line += 1
-            cursor_position = len(lines[current_line])
+            cursor_position = len(lines2[current_line])
         else :
             draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
             current_line = 0
-            cursor_position = len(lines[current_line])
+            cursor_position = len(lines2[current_line])
     elif event.key == K_ESCAPE:
         run_cdc = False
     elif event.key == K_TAB and (keys[K_LSHIFT] or keys[K_RSHIFT]):
         if current_line > 0:
-            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
             current_line -=1
-            cursor_position = len(lines[current_line])
+            cursor_position = len(lines2[current_line])
     elif event.key == K_TAB:
         #si on appuie sur la touche du bas, on passe à la ligne suivante :
         if current_line < 2:
-            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/4+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
             current_line += 1
-            cursor_position = len(lines[current_line])
+            cursor_position = len(lines2[current_line])
     elif event.key == K_UP :
-        if is_float(lines[current_line]):
-            lines[current_line] = str(int(float(lines[current_line])) + 1)
-        cursor_position = len(lines[current_line])
-        modifie_rayons3D(lines,numéro)
+        if is_float(lines2[current_line]):
+            lines2[current_line] = str(int(float(lines2[current_line])) + 1)
+        cursor_position = len(lines2[current_line])
+        modifie_rayons3D(lines2,numéro)
     elif event.key == K_DOWN :
-        if is_float(lines[current_line]):
-            lines[current_line] = str(int(float(lines[current_line])) - 1)
-        cursor_position = len(lines[current_line])
-        modifie_rayons3D(lines,numéro)
+        if is_float(lines2[current_line]):
+            lines2[current_line] = str(int(float(lines2[current_line])) - 1)
+        cursor_position = len(lines2[current_line])
+        modifie_rayons3D(lines2,numéro)
     elif event.key == K_RIGHT:
         #si on appuie sur la flèche de droite, le curseur se déplace d'une lettre
         if cursor_position < (longueur_current_line):
@@ -1157,13 +1157,13 @@ def input_to_text3D(event,numéro):
             letter = event.unicode
             if letter:  # Si la touche produit un caractère (ignore Shift, Ctrl, etc.)
                 if cursor_position == 0:
-                    lines[current_line] = letter + lines[current_line]
+                    lines2[current_line] = letter + lines2[current_line]
                 elif cursor_position < (longueur_current_line):
-                    lines[current_line] = lines[current_line][:(cursor_position)] + letter + lines[current_line][(cursor_position):]
+                    lines2[current_line] = lines2[current_line][:(cursor_position)] + letter + lines2[current_line][(cursor_position):]
                 else: 
-                    lines[current_line] += letter
+                    lines2[current_line] += letter
                 cursor_position += 1
-                modifie_rayons3D(lines,numéro)
+                modifie_rayons3D(lines2,numéro)
 
 def modifie_rayons3D(lines,numéro):
     '''
