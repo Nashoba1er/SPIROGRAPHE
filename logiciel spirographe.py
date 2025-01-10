@@ -1519,17 +1519,12 @@ def menu_g_code(theta_max, N, petit_r, grand_r, p, Rsphere):
 
     display.flip()
 
-<<<<<<< HEAD
-def sauvegarde_g_code(theta_max, N, petit_r, grand_r, p, Rsphere):
-    gcode_name, gcode = write_gcode (theta_max, N, petit_r, grand_r, p, Rsphere, ep=0.4)
-=======
 def sauvegarde_g_code(lines):
     global window_height,window_width
     grand_r = float(lines[0])*(window_height/4)/100
     petit_r = float(lines[1])*(window_height/4)/100
     p = float(lines[2])*(window_height/4)/100
     gcode_name, gcode = write_gcode(12000.0, 100000, petit_r, grand_r, p, 0)
->>>>>>> 39df7ecae52ee7451e58e50af09a50f1a73b90b6
     chemin_fichier = sauvegarde_fichier_gcode(gcode_name, gcode)
     if chemin_fichier:
         print(f"Fichier enregistré à : {chemin_fichier}")
