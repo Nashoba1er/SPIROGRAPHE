@@ -3,6 +3,7 @@ from pygame import K_TAB, K_LSHIFT, K_RSHIFT, display, event, QUIT, MOUSEBUTTOND
 from numpy import linspace, cos, sin, sqrt
 from tkinter import filedialog, Tk
 from os import path
+from webbrowser import *
 
 # couleurs
 
@@ -854,7 +855,7 @@ def bouton_couleur(pos):
     (cursor_x, cursor_y) = pos
     width = police_taille*3/5*(len(message)+1)
     height = police_taille
-    pos_x = 8*window_width/10
+    pos_x = 7*window_width/10
     pos_y = 8*window_height/10
     draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
     if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
@@ -883,7 +884,7 @@ def bouton_ede(pos):
     (cursor_x, cursor_y) = pos
     width = police_taille*3/5*(len(message)+1)
     height = police_taille
-    pos_x = 2*window_width/10
+    pos_x = 3*window_width/10
     pos_y = 8*window_height/10
     draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
     if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
@@ -1436,7 +1437,7 @@ def points3D(theta_max, N, petit_r, grand_r, p,Rsphere) :
     
     return x, y, z
 
-#fonctions pour le menu ellipse dans ellipse
+#fonctions pour le menu Infos et Paramètres
 
 def menu_param_et_info():
     '''
@@ -1447,14 +1448,21 @@ def menu_param_et_info():
     screen.fill(couleur_param)
     ecriture("Paramètres & Informations",couleur("WHITE"),police_taille*3//2,(window_width/2,3*window_height/20))
     
-    ecriture("Le but de ce projet est de générer un fichier G CODE",couleur("WHITE"),police_taille//2,(window_width/2,5*window_height/20))
-    ecriture("utilisable par une imprimante 3D",couleur("WHITE"),police_taille//2,(window_width/2,6*window_height/20))
-    ecriture("Et se basant sur le fonctionnement d'un spirographe",couleur("WHITE"),police_taille//2,(window_width/2,7*window_height/20))
+    ecriture("Le but de ce projet est de générer un fichier G CODE",couleur("BLACK"),police_taille*2//3,(window_width/2,5*window_height/20))
+    ecriture("utilisable par une imprimante 3D",couleur("BLACK"),police_taille*2//3,(window_width/2,6*window_height/20))
+    ecriture("En se basant sur le fonctionnement d'un spirographe",couleur("BLACK"),police_taille*2//3,(window_width/2,7*window_height/20))
 
+    ecriture("Contributeurs :",couleur("WHITE"),police_taille,(window_width/2,9*window_height/20))
+    ecriture("Antoine Dumont (Dev)",couleur("BLACK"),police_taille*2//3,(window_width/2,11*window_height/20))
+    ecriture("Julien Chantail (Dev)",couleur("BLACK"),police_taille*2//3,(window_width/2,12*window_height/20))
+    ecriture("Papis Diop (Dev)",couleur("BLACK"),police_taille*2//3,(window_width/2,13*window_height/20))
+    ecriture("Ulysse Gaumet (Tuteur)",couleur("BLACK"),police_taille*2//3,(window_width/2,14*window_height/20))
 
+    bouton_github((0,0))
     return_arrow((0,0))
     bouton_couleur((0,0))
     bouton_ede((0,0))
+    bouton_compte_rendu((0,0))
 
 def clic_param_et_info(coord):
     '''
@@ -1465,6 +1473,64 @@ def clic_param_et_info(coord):
     if return_arrow(coord):
         run_param_et_info = False
  
+def bouton_github(pos):
+    '''
+    entrée :
+        pos = (x,y) : la position du curseur
+    effet :
+        affiche le bouton Github :
+            en blanc si le curseur n'est pas dessus
+            en vert à l'inverse
+    sortie : 
+        renvoie True si le curseur est sur le bouton, False sinon
+    '''
+    res = False
+    message = "Github"
+    (cursor_x, cursor_y) = pos
+    width = police_taille*3/5*(len(message)+1)
+    height = police_taille
+    pos_x = 2*window_width/10
+    pos_y = 6*window_height/10
+    draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
+    if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
+        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("GREEN"),police_taille,(pos_x,pos_y))
+        res = True
+
+    else :
+        draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("WHITE"),police_taille,(pos_x,pos_y))
+    return res
+
+def bouton_compte_rendu(pos):
+    '''
+    entrée :
+        pos = (x,y) : la position du curseur
+    effet :
+        affiche le bouton Github :
+            en blanc si le curseur n'est pas dessus
+            en vert à l'inverse
+    sortie : 
+        renvoie True si le curseur est sur le bouton, False sinon
+    '''
+    res = False
+    message = "Compte_rendu"
+    (cursor_x, cursor_y) = pos
+    width = police_taille*3/5*(len(message)+1)
+    height = police_taille
+    pos_x = 8*window_width/10
+    pos_y = 6*window_height/10
+    draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
+    if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
+        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("GREEN"),police_taille,(pos_x,pos_y))
+        res = True
+
+    else :
+        draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("WHITE"),police_taille,(pos_x,pos_y))
+    return res
+
 
 #fonctions pour le menu G CODE :
 
@@ -1817,6 +1883,8 @@ while run :
                         return_arrow(pyEvent.pos)
                         bouton_couleur(pyEvent.pos)
                         bouton_ede(pyEvent.pos)
+                        bouton_github(pyEvent.pos)
+                        bouton_compte_rendu(pyEvent.pos)
                     if pyEvent.type == MOUSEBUTTONDOWN :
                         clic_param_et_info(pyEvent.pos)
                 display.flip()
