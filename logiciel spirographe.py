@@ -1,9 +1,11 @@
 from pygame import init, draw, font, K_BACKSPACE, key, K_RETURN, K_DOWN, K_UP, KEYDOWN, K_LEFT, K_RIGHT, KEYUP, time, image
-from pygame import K_TAB, K_LSHIFT, K_RSHIFT, display, event, QUIT, MOUSEBUTTONDOWN, MOUSEMOTION, MOUSEBUTTONUP, K_ESCAPE, transform
-from numpy import linspace, cos, sin, sqrt
+from pygame import K_TAB, K_LSHIFT, K_RSHIFT, display, event, QUIT, MOUSEBUTTONDOWN, MOUSEMOTION, MOUSEBUTTONUP, K_ESCAPE, transform, surfarray
+from numpy import linspace, cos, sin, sqrt, all
 from tkinter import filedialog, Tk
 from os import path, startfile
 from webbrowser import open
+logo_github = image.load("C:/Users/antoi/Documents_local/dossier_mines_st_etienne/cours/protech/code/github.png")
+
 
 # couleurs
 
@@ -914,7 +916,7 @@ def bouton_param_et_info(pos):
     width = police_taille*3/5*(len(message)+1)
     height = police_taille
     pos_x = window_width/2
-    pos_y = 8*window_height/10
+    pos_y = 8.5*window_height/10
     draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
     if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
         draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
@@ -1223,8 +1225,6 @@ def modifie_rayons3D(lines2,numéro):
     ecriture("Rayon de la sphère :",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5 + window_height/40))
     ecriture("(S max = "+str(S_max)+")",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
 
-    
-
 def bouton_xy(pos):
     #Ajout pour les boutons
     res = False
@@ -1469,7 +1469,7 @@ def clic_param_et_info(coord):
     entrée : les coordonnées du clic
     effet : change la couleur selon le clic
     '''
-    global run_param_et_info
+    global run_param_et_info, run_couleur, run_ede
     if return_arrow(coord):
         run_param_et_info = False
     if bouton_github(coord):
@@ -1487,7 +1487,11 @@ def clic_param_et_info(coord):
         # Convertir en chemin absolu et formater en URL compatible
         absolute_path = path.abspath(pdf_path)
         open(f"file:///{absolute_path}")
- 
+    if bouton_couleur(coord):
+        run_couleur = True
+    if bouton_ede(coord):
+        run_ede = True
+
 def bouton_github(pos):
     '''
     entrée :
@@ -1515,6 +1519,9 @@ def bouton_github(pos):
     else :
         draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
         ecriture(message,couleur("WHITE"),police_taille,(pos_x,pos_y))
+
+    #affiche_github_logo : 
+    affiche_logo_github(res,logo_github)
     return res
 
 def bouton_compte_rendu(pos):
@@ -1545,6 +1552,31 @@ def bouton_compte_rendu(pos):
         draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
         ecriture(message,couleur("WHITE"),police_taille,(pos_x,pos_y))
     return res
+
+def affiche_logo_github(res,image):
+    pos_x = 2*window_width/10
+    pos_y = 6*window_height/10
+
+    image = image.convert_alpha()
+    image = transform.scale(image, (police_taille*0.8, police_taille*0.8))
+    # Modifier les couleurs en utilisant pygame.surfarray.array3d()
+    image_array = surfarray.array3d(image)
+
+    inverted_array = 255 - image_array  # Inversion des couleurs
+
+    image_array = inverted_array
+
+    # Trouver et remplacer les pixels noir (l'image est noire)
+    mask = all(image_array == couleur("WHITE"), axis=-1)  # Crée un masque des pixels blancs
+    if res:
+        image_array[mask] = couleur("GREEN")  # Remplace les pixels blancs par vert
+    else : 
+        image_array[mask] = couleur("WHITE")  # Remplace les pixels blancs par vert
+
+    # Convertir le tableau modifié en une surface Pygame
+    modified_image = surfarray.make_surface(image_array)
+
+    screen.blit(modified_image, (pos_x+3.5*police_taille*3/5,pos_y-police_taille/2+4))
 
 
 #fonctions pour le menu G CODE :
@@ -1706,6 +1738,20 @@ def clic_g_code(pos):
         menu_cercle_dans_cercle_init(lines)
         ecrit(current_line)
 
+
+# fonctoins pour le menu Ellipse dans Ellipse :
+
+def menu_ede():
+    screen.fill(couleur_fond)
+
+    return_arrow((0,0))
+
+def clic_ede(coord):
+    global run_ede
+    if return_arrow(coord):
+        run_ede = False
+
+
 ## affichage
 
 # définition de l'écran
@@ -1756,9 +1802,9 @@ run_cdc3D = False
 run_param_et_info = False
 numéro = 2
 run_g_code = False
+run_ede = False
 
 menu_choix()
-
 
 while run :
     for pyEvent in event.get():
@@ -1842,19 +1888,6 @@ while run :
                     if pyEvent.type == MOUSEMOTION and dragging >= 0:
                         bouge_curseur(pyEvent.pos,dragging)
                     display.flip() #mettre à jour l'affichage
-            
-            if run_couleur :
-                menu_couleur()
-            while run_couleur :
-                for pyEvent in event.get():
-                    if pyEvent.type == QUIT:
-                        run = False
-                        run_couleur = False
-                    if pyEvent.type == MOUSEMOTION :
-                        survole_bouton(pyEvent.pos)
-                    if pyEvent.type == MOUSEBUTTONDOWN :
-                        clic_couleur(pyEvent.pos)
-                display.flip()
             if run_cdc3D :
                 menu_cdc3D(numéro)
             while run_cdc3D :
@@ -1902,6 +1935,33 @@ while run :
                         bouton_compte_rendu(pyEvent.pos)
                     if pyEvent.type == MOUSEBUTTONDOWN :
                         clic_param_et_info(pyEvent.pos)
+                        if run_couleur :
+                            menu_couleur()
+                        while run_couleur :
+                            for pyEvent in event.get():
+                                if pyEvent.type == QUIT:
+                                    run = False
+                                    run_param_et_info = False
+                                    run_couleur = False
+                                if pyEvent.type == MOUSEMOTION :
+                                    survole_bouton(pyEvent.pos)
+                                if pyEvent.type == MOUSEBUTTONDOWN :
+                                    clic_couleur(pyEvent.pos)
+                            display.flip()
+                        if run_ede :
+                            menu_ede()
+                        while run_ede:
+                            for pyEvent in event.get():
+                                if pyEvent.type == QUIT:
+                                    run = False
+                                    run_param_et_info = False
+                                    run_couleur = False
+                                if pyEvent.type == MOUSEMOTION :
+                                    return_arrow(pyEvent.pos)
+                                if pyEvent.type == MOUSEBUTTONDOWN :
+                                    clic_ede(pyEvent.pos)
+                            display.flip()
+                        menu_param_et_info()
                 display.flip()
             menu_choix()
 
