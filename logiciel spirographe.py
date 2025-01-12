@@ -329,6 +329,7 @@ def zoom_schema(lines):
         zoom_cercles(r1,r2,p,couleur_g_cercle,couleur_p_cercle,couleur_rendu,couleur_fond)
     else :
         run_zoom_schema = False
+    return_arrow((0,0))
 
 def zoom_rendu(lines):
     '''
@@ -354,6 +355,7 @@ def zoom_rendu(lines):
             draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),1)
     else :
         run_zoom_rendu = False
+    return_arrow((0,0))
 
 def curseurs_init():
     '''
@@ -1455,6 +1457,7 @@ def zoom_rendu3D(lines2, numéro):
                 draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_z[i]),1)
     else :
         run_zoom_rendu = False
+    return_arrow((0,0))
 
 def points3D(theta_max, N, petit_r, grand_r, p,Rsphere) :
     theta = linspace(0.0, theta_max, N)
@@ -1821,11 +1824,11 @@ def champ_gcode(num_champ):
     if num_champ == 1 :
         ecriture ("nb_points", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
     if num_champ == 2 :
-        ecriture ("theta_max (rad)", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
+        ecriture ("nb couches", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
     if num_champ == 3 :
-        ecriture ("nb_points", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
+        ecriture ("epaisseur (micrometres)", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
     if num_champ == 4 :
-        ecriture ("theta_max (rad)", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
+        ecriture ("rayon grand cercle (mm)", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
     draw.rect(screen,couleur("WHITE"),[x_champ,y_champ,width,height])
     draw.rect(screen,couleur("BLACK"),[x_champ,y_champ,width,height],6)
     draw.rect(screen,couleur("WHITE"),[x_champ,y_champ,width,height],2)
