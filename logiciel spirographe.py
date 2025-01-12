@@ -1703,67 +1703,6 @@ def sauvegarde_fichier_gcode(name, content):
             print(f"Erreur lors de la création du fichier : {e}")
     return fichier
 
-def menu_g_code(theta_max, N, petit_r, grand_r, p, Rsphere):
-    screen.fill((0, 0, 0))  # Fond noir
-    i = 1
-    ecriture("Vous vous appretez à sauvegarder un fichier gcode" , (255,255,255), 25, (window_width/2, i*window_height/12))
-    ecriture("généré selon les paramètres suivants" , (255,255,255), 25, (window_width/2, (2*i+1)*window_height/24))
-    i = i+1.5
-    i = 2*i+1
-    ecriture(f"theta_max = {theta_max}", (255,255,255),25,(window_width/2, i*window_height/24))
-    i = i+1.5
-    ecriture(f"N = {N}",(255,255,255), 25,(window_width/2, i*window_height/24))
-    i = i+1.5
-    ecriture( f"grand_r = {grand_r}", (255,255,255),25,(window_width/2, i*window_height/24))
-    i = i+1.5
-    ecriture( f"petit_r = {petit_r}", (255,255,255),25,(window_width/2, i*window_height/24))
-    i = i+1
-    ecriture( f"p = {p}", (255,255,255),25,(window_width/2, i*window_height/24))
-    i = i+1
-    if Rsphere == 0 :
-        ecriture( "à plat", (255,255,255),25,(window_width/2, i*window_height/24))
-    elif Rsphere >= (grand_r+p-petit_r) :
-        ecriture(f"Rsphere = {Rsphere}", (255,255,255),25,(window_width/2, i*window_height/24))
-    i = i+1
-    ecriture("appuyez sur Entrée pour poursuivre", (255,255,255), 25 ,(window_width/2, i*window_height/12))
-    i = i+1
-    ecriture("sinon, fermez la fenêtre", (255,255,255), 25, (window_width/2, i*window_height/12))
-    return_arrow((0,0))
-    bouton_save_g_code((0,0))
-
-    display.flip()
-
-def sauvegarde_g_code(lines):
-    global window_height,window_width
-    grand_r = float(lines[0])*(window_height/4)/100
-    petit_r = float(lines[1])*(window_height/4)/100
-    p = float(lines[2])*(window_height/4)/100
-    gcode_name, gcode = write_gcode(12000.0, 100000, petit_r, grand_r, p, 0)
-    chemin_fichier = sauvegarde_fichier_gcode(gcode_name, gcode)
-    if chemin_fichier:
-        print(f"Fichier enregistré à : {chemin_fichier}")
-
-def bouton_save_g_code(pos):
-    #Ajout pour les boutons
-    res = False
-    message = "Sauvegarder G CODE"
-    (cursor_x, cursor_y) = pos
-    police_taille2 = police_taille-8
-    width = police_taille2*3/5*(len(message)+1)*2
-    height = police_taille2*2
-    pos_x = window_width/2
-    pos_y = 8*window_height/10
-    draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
-    if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
-        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
-        ecriture(message,couleur("GREEN"),police_taille2*2,(pos_x,pos_y))
-        res = True
-
-    else :
-        draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
-        ecriture(message,couleur("WHITE"),police_taille2*2,(pos_x,pos_y))
-    return res
-
 def clic_g_code(pos):
     global run_g_code, cursor_position, current_line,police_taille_valeurs_champs,lines, numéro
     coord_x, coord_y = pos
