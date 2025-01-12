@@ -1133,7 +1133,6 @@ def clic_cdc3D(coord, numéro):
             for carac in range(len(lines2[current_line])):
                 if (coord_x < current_line_x + (len(lines2[current_line])-carac)*taille_carac) :
                     cursor_position = len(lines2[current_line])-carac - 1
-            print("curseur paint 1")
             draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,taille_curseur],0)
             
         # Vérifie si le clic est sur un curseur
@@ -1344,7 +1343,6 @@ def ecrit3D(num_champ):
     # Rendre et afficher chaque ligne de texte
     txt_surf = police.render(lines2[num_champ], True, couleur("BLACK"))
     screen.blit(txt_surf, (indent_x, indent_y + num_champ*espace))
-    print("curseur paint 2")
     draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
     curseur3D(num_champ)
     ecriture("%",couleur("BLACK"),police_taille,(indent_x + 11.5*taille_carac, (num_champ)*espace+current_line1_y+window_height/30))
@@ -2083,8 +2081,6 @@ file_path = path.join(current_dir, "ressources", "data.json")
 try:
   with open(file_path, "r") as file:
       data = load(file)
-      print("data trouvé !")
-      print(data)
       
       #on récupère les données
       couleur_param_str = data.get("couleur_param", "(255,255,255)")  # Valeur par défaut 0 si "x" n'existe pas
@@ -2246,7 +2242,6 @@ while run :
                                     return_arrow(pyEvent.pos)
                                     bouton_gcode(pyEvent.pos)
                             display.flip() #mettre à jour l'affichage
-                        print(run_g_code)
                         if run_g_code: 
                             lines3 = [str(int(theta_max)), str(N), str(nb_couches), str(1000*ep_couches), str(lines2[1])]
                             rapport_rsphere = float(lines2[0])/float(lines2[1])
@@ -2345,9 +2340,6 @@ data = {
 with open(file_path, "w") as file:
     dump(data, file)
 
-print("après modif :")
-
-print(data)
 
 quit()
 
