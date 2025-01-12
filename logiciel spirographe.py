@@ -210,13 +210,17 @@ def ecritures_param():
     '''
     effet : afficher les écritures de la page du spinographe en 2D
     '''
-    ecriture("Saisie des paramètres",couleur("BLACK"),police_taille,(window_width/4,window_height/8))
-    ecriture("Rayon du grand cercle",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/4))
-    ecriture("Rayon du petit cercle",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/2))
-    ecriture("Distance au centre   ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,3*window_height/4))
-    ecriture("R max = 100",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/4+5*window_height/32))
-    ecriture(" r max = R ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/2+5*window_height/32))
-    ecriture(" d max = r ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,3*window_height/4+5*window_height/32))
+    if couleur_param == couleur("BLACK"):
+        couleur_texte = couleur("WHITE")
+    else :
+        couleur_texte = couleur("BLACK")
+    ecriture("Saisie des paramètres",couleur_texte,police_taille,(window_width/4,window_height/8))
+    ecriture("Rayon du grand cercle",couleur_texte,int(3/5*police_taille),(window_width/4,window_height/4))
+    ecriture("Rayon du petit cercle",couleur_texte,int(3/5*police_taille),(window_width/4,window_height/2))
+    ecriture("Distance au centre   ",couleur_texte,int(3/5*police_taille),(window_width/4,3*window_height/4))
+    ecriture("R max = 100",couleur_texte,int(3/5*police_taille),(window_width/4,window_height/4+5*window_height/32))
+    ecriture(" r max = R ",couleur_texte,int(3/5*police_taille),(window_width/4,window_height/2+5*window_height/32))
+    ecriture(" d max = r ",couleur_texte,int(3/5*police_taille),(window_width/4,3*window_height/4+5*window_height/32))
 
 def bouton_gcode(pos):
     '''
@@ -599,15 +603,15 @@ def input_to_text(event):
             current_line += 1
             cursor_position = len(lines[current_line])
     elif event.key == K_UP :
-        if is_float(lines[current_line]):
+        if is_float(lines[current_line]) and int(float(lines[current_line])) < 100:
             lines[current_line] = str(int(float(lines[current_line])) + 1)
-        cursor_position = len(lines[current_line])
-        modifie_rayons(lines)
+            cursor_position = len(lines[current_line])
+            modifie_rayons(lines)
     elif event.key == K_DOWN :
-        if is_float(lines[current_line]):
+        if is_float(lines[current_line]) and int(float(lines[current_line])) > 0:
             lines[current_line] = str(int(float(lines[current_line])) - 1)
-        cursor_position = len(lines[current_line])
-        modifie_rayons(lines)
+            cursor_position = len(lines[current_line])
+            modifie_rayons(lines)
     elif event.key == K_RIGHT:
         #si on appuie sur la flèche de droite, le curseur se déplace d'une lettre
         if cursor_position < (longueur_current_line):
@@ -1002,7 +1006,7 @@ def boutons_choix_couleur(coord):
 
     couleurs = [["C1_BLUE","BLEU_JOLI","BLACK","WHITE","SAUGE_LOANN","ROSE_CLAIR"],
                ["C1_BLUE","BLEU_JOLI","BLACK","BLEU_FONCE","BG_COLOR","VIOLET_FONCE"],
-               ["BLACK","RED","WHITE","MAGENTA","ORANGE","YELLOW"]]
+               ["WHITE","RED","BLACK","MAGENTA","ORANGE","YELLOW"]]
     
     for i in range(6):
         if bouton_choix_couleur(x_0+(i%2)*incrément,y_0+i//2*incrément,taille,couleur(couleurs[0][i]),coord):
@@ -1057,18 +1061,26 @@ def menu_cdc3D(numéro):
     taille_carac = 3/5*police_taille
     screen.fill(couleur_fond)
 
+    if couleur_param == couleur("BLACK"):
+        couleur_texte = couleur("WHITE")
+    else :
+        couleur_texte = couleur("BLACK")
+
     draw.rect(screen,couleur_param,[0,0,window_width/2,window_height],0)
     draw.rect(screen,couleur_param,[0,window_height/5+window_height/40-window_height/50,window_width/2, police_taille*1.3])
-    S_max = float(lines2[1]) - float(lines2[2]) + float(lines2[3]) 
-    ecriture("Rayon de la sphère :",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5 + window_height/40))
-    ecriture("(S max = "+str(S_max)+")",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
-    ecriture("Saisie des paramètres",couleur("BLACK"),police_taille,(window_width/4,window_height/8))
-    ecriture("Rayon du grand cercle",couleur("BLACK"),int(3/5*police_taille),(window_width/4,2*window_height/5+ window_height/40))
-    ecriture("(R max = 100)",couleur("BLACK"),int(3/5*police_taille),(window_width/4,2*window_height/5+window_height/40 + window_height/30))
-    ecriture("Rayon du petit cercle",couleur("BLACK"),int(3/5*police_taille),(window_width/4,3*window_height/5+ window_height/32))
-    ecriture(" (r max = R) ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,3*window_height/5+window_height/40 + window_height/30))
-    ecriture("Distance au centre   ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,4*window_height/5+ window_height/32))
-    ecriture(" (d max = r) ",couleur("BLACK"),int(3/5*police_taille),(window_width/4,4*window_height/5+window_height/40 + window_height/30))
+    if is_float(lines2[1]) and is_float(lines2[2]) and is_float(lines2[3]):
+        S_max = float(lines2[1]) - float(lines2[2]) + float(lines2[3]) 
+    else : 
+        S_max = "non défini"
+    ecriture("Rayon de la sphère :",couleur_texte,int(3/5*police_taille),(window_width/4,window_height/5 + window_height/40))
+    ecriture("(S max = "+str(S_max)+")",couleur_texte,int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
+    ecriture("Saisie des paramètres",couleur_texte,police_taille,(window_width/4,window_height/8))
+    ecriture("Rayon du grand cercle",couleur_texte,int(3/5*police_taille),(window_width/4,2*window_height/5+ window_height/40))
+    ecriture("(R max = 100)",couleur_texte,int(3/5*police_taille),(window_width/4,2*window_height/5+window_height/40 + window_height/30))
+    ecriture("Rayon du petit cercle",couleur_texte,int(3/5*police_taille),(window_width/4,3*window_height/5+ window_height/32))
+    ecriture(" (r max = R) ",couleur_texte,int(3/5*police_taille),(window_width/4,3*window_height/5+window_height/40 + window_height/30))
+    ecriture("Distance au centre   ",couleur_texte,int(3/5*police_taille),(window_width/4,4*window_height/5+ window_height/32))
+    ecriture(" (d max = r) ",couleur_texte,int(3/5*police_taille),(window_width/4,4*window_height/5+window_height/40 + window_height/30))
     
     modifie_rayons3D(lines2,numéro)
 
@@ -1121,18 +1133,17 @@ def clic_cdc3D(coord, numéro):
             for carac in range(len(lines2[current_line])):
                 if (coord_x < current_line_x + (len(lines2[current_line])-carac)*taille_carac) :
                     cursor_position = len(lines2[current_line])-carac - 1
+            print("curseur paint 1")
             draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,taille_curseur],0)
-        
+            
         # Vérifie si le clic est sur un curseur
         if coord_y > (i)*espace+current_line1_y + 2 * window_height/32 and coord_y < (i)*espace+current_line1_y + 4 * window_height/32 :
             # je suis à hauteur du curseur
             if coord_x > current_line_x and coord_x < current_line_x  + width :
                 dragging = i  # On commence à déplacer l'objet
-    #clic sur le shéma
-    if (coord_x > window_width/2 and coord_y < window_height/2):
-        run_zoom_schema = True 
+
     #clic sur le rendu
-    if (coord_x > window_width/2 and coord_y > window_height/2):
+    if (coord_x > window_width/2 and coord_y > 2*window_height/10):
         run_zoom_rendu = True
     #clic sur la flèche retour
     if return_arrow(coord):
@@ -1191,7 +1202,7 @@ def input_to_text3D(event,numéro):
             cursor_position -= 1
     elif event.key == K_RETURN:
         # Si 'Entrée' est appuyé,
-        if current_line < 2:
+        if current_line < 3:
             draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
             current_line += 1
             cursor_position = len(lines2[current_line])
@@ -1213,15 +1224,15 @@ def input_to_text3D(event,numéro):
             current_line += 1
             cursor_position = len(lines2[current_line])
     elif event.key == K_UP :
-        if is_float(lines2[current_line]):
+        if is_float(lines2[current_line]) and int(float(lines2[current_line])) < 100:
             lines2[current_line] = str(int(float(lines2[current_line])) + 1)
-        cursor_position = len(lines2[current_line])
-        modifie_rayons3D(lines2,numéro)
+            cursor_position = len(lines2[current_line])
+            modifie_rayons3D(lines2,numéro)
     elif event.key == K_DOWN :
-        if is_float(lines2[current_line]):
+        if is_float(lines2[current_line]) and int(float(lines[current_line])) > 0:
             lines2[current_line] = str(int(float(lines2[current_line])) - 1)
-        cursor_position = len(lines2[current_line])
-        modifie_rayons3D(lines2,numéro)
+            cursor_position = len(lines2[current_line])
+            modifie_rayons3D(lines2,numéro)
     elif event.key == K_RIGHT:
         #si on appuie sur la flèche de droite, le curseur se déplace d'une lettre
         if cursor_position < (longueur_current_line):
@@ -1261,13 +1272,16 @@ def modifie_rayons3D(lines2,numéro):
         r1 = float(lines2[1])*(window_height/4)/100
         r2 = float(lines2[2])*(window_height/4)/100
         p = float(lines2[3])*(window_height/4)/100
-
         rendu3D(r1,r2,p,couleur_rendu,numéro,Rsph)
+    else :
+        ecriture("Problème valeurs",couleur("RED"),int(police_taille*1.3),(3*window_width/4,window_height/2))
     draw.rect(screen,couleur_param,[0,window_height/5+window_height/40-window_height/50,window_width/2, police_taille*1.3])
     if is_float(lines2[1]) and is_float(lines2[2]) and is_float(lines2[3]):
         S_max = float(lines2[1]) - float(lines2[2]) + float(lines2[3]) 
+    else : S_max = "non défini"
     ecriture("Rayon de la sphère :",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5 + window_height/40))
     ecriture("(S max = "+str(S_max)+")",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
+    bouton_gcode((0,0))
 
 def bouton_xy(pos):
     #Ajout pour les boutons
@@ -1330,7 +1344,8 @@ def ecrit3D(num_champ):
     # Rendre et afficher chaque ligne de texte
     txt_surf = police.render(lines2[num_champ], True, couleur("BLACK"))
     screen.blit(txt_surf, (indent_x, indent_y + num_champ*espace))
-    draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5-9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+    print("curseur paint 2")
+    draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
     curseur3D(num_champ)
     ecriture("%",couleur("BLACK"),police_taille,(indent_x + 11.5*taille_carac, (num_champ)*espace+current_line1_y+window_height/30))
     display.update()
@@ -1387,6 +1402,47 @@ def curseur3D(num_champ):
 
     else : 
         draw.rect(screen,couleur_curseur,[pos_x - width/2,pos_y,width,2],0)
+
+def bouge_curseur3D(coord,dragging):
+    '''
+    entrée : 
+        les coordonnées de la souris, 
+        dragging = le numéro du champ dont le curseur est associé
+    effet : 
+        met à jour la position du curseur et met à jour le champ
+        met à jour 2 curseurs si d = r est enclenché
+    '''
+
+    # set les variables dont j'ai besoin
+    global lines2, cursor_position,numéro
+    num_curseur = dragging # numéro du curseur qu'on change
+    espace = window_height/5 # espace vertical entre les curseurs
+    coord_x, _ = coord # coordonnées du clic
+    pos_x = window_width/4 # centre du curseur
+    width_champ = window_width / 4 # taille du champ
+    width = width_champ * (2/3) # taille du curseur
+
+    if coord_x < pos_x - width/2:
+        pos_curseur_x = pos_x - width/2
+    elif coord_x > pos_x + width/2 :
+        pos_curseur_x = pos_x + width/2
+    else :
+        pos_curseur_x = coord_x
+
+    # mise à jour de la valeur du champ : 
+    param = int(((pos_curseur_x-pos_x+width/2))/width * 100)
+    if param > 100 :
+        param = 100
+    if param < 0:
+        param = 0
+    lines2[num_curseur] = str(param)
+
+    cursor_position = len(lines2[current_line])
+    modifie_rayons3D(lines2,numéro)
+
+    ecrit3D(num_curseur)
+    curseur3D(num_curseur)
+
 
 def rendu3D(r1,r2,p,couleur_rendu,numéro, Rsphere):
     '''
@@ -1490,17 +1546,22 @@ def menu_param_et_info():
         - affiche des boutons indiquant les couleurs pour le rendu
     '''
     screen.fill(couleur_param)
+    if couleur_param == couleur("BLACK"):
+        couleur_texte = couleur("WHITE")
+    else :
+        couleur_texte = couleur("BLACK")
+
     ecriture("Paramètres & Informations",couleur("WHITE"),police_taille*3//2,(window_width/2,3*window_height/20))
     
-    ecriture("Le but de ce projet est de générer un fichier G CODE",couleur("BLACK"),police_taille*2//3,(window_width/2,5*window_height/20))
-    ecriture("utilisable par une imprimante 3D",couleur("BLACK"),police_taille*2//3,(window_width/2,6*window_height/20))
-    ecriture("En se basant sur le fonctionnement d'un spirographe",couleur("BLACK"),police_taille*2//3,(window_width/2,7*window_height/20))
+    ecriture("Le but de ce projet est de générer un fichier G CODE",couleur_texte,police_taille*2//3,(window_width/2,5*window_height/20))
+    ecriture("utilisable par une imprimante 3D",couleur_texte,police_taille*2//3,(window_width/2,6*window_height/20))
+    ecriture("En se basant sur le fonctionnement d'un spirographe",couleur_texte,police_taille*2//3,(window_width/2,7*window_height/20))
 
     ecriture("Contributeurs :",couleur("WHITE"),police_taille,(window_width/2,9*window_height/20))
-    ecriture("Antoine Dumont (Dev)",couleur("BLACK"),police_taille*2//3,(window_width/2,11*window_height/20))
-    ecriture("Julien Chantail (Dev)",couleur("BLACK"),police_taille*2//3,(window_width/2,12*window_height/20))
-    ecriture("Papis Diop (Dev)",couleur("BLACK"),police_taille*2//3,(window_width/2,13*window_height/20))
-    ecriture("Ulysse Gaumet (Tuteur)",couleur("BLACK"),police_taille*2//3,(window_width/2,14*window_height/20))
+    ecriture("Antoine Dumont (Dev)",couleur_texte,police_taille*2//3,(window_width/2,11*window_height/20))
+    ecriture("Julien Chantail (Dev)",couleur_texte,police_taille*2//3,(window_width/2,12*window_height/20))
+    ecriture("Papis Diop (Dev)",couleur_texte,police_taille*2//3,(window_width/2,13*window_height/20))
+    ecriture("Ulysse Gaumet (Tuteur)",couleur_texte,police_taille*2//3,(window_width/2,14*window_height/20))
 
     bouton_github((0,0))
     return_arrow((0,0))
@@ -1992,8 +2053,6 @@ screen.fill(couleur("BLEU_JOLI")) #pour choisir la couleur du fond de la fenêtr
 police_taille = int(window_height/17)
 police = font.SysFont("Courier New", police_taille)  # Police par défaut, taille 36
 character_limit = 7  # Limite de caractères par ligne
-lines = ['75','40','20']  # Liste des lignes de texte
-lines2 = ['80', '60', '40', '20'] # Liste des lignes de texte pour 3D
 police_taille_valeurs_champs = int(window_height/22)
 police_taille_infos = int(window_height/36)
 
@@ -2014,7 +2073,6 @@ character_limit_gcode = 7
 
 
 current_line = 0  # Index de la ligne courante
-cursor_position = 2
 couleur_g_cercle = couleur("RED")
 couleur_p_cercle = couleur("BLEU_FONCE")
 
@@ -2027,18 +2085,31 @@ try:
       data = load(file)
       print("data trouvé !")
       print(data)
+      
+      #on récupère les données
       couleur_param_str = data.get("couleur_param", "(255,255,255)")  # Valeur par défaut 0 si "x" n'existe pas
       couleur_fond_str = data.get("couleur_fond", "(153, 204, 255)")  # Valeur par défaut 0 si "x" n'existe pas
       couleur_rendu_str = data.get("couleur_rendu", "(169, 184, 204)")  # Valeur par défaut 0 si "x" n'existe pas
+      lines_str = data.get("lines","['75','40','20']")
+      lines2_str = data.get("lines2","['80', '60', '40', '20']")
+      cursor_position_str = data.get("cursor_position","2")
+
+      # on les convertis
       couleur_param = eval(couleur_param_str)
       couleur_fond = eval(couleur_fond_str)
       couleur_rendu = eval(couleur_rendu_str)
-      print("couleur param vaut",couleur_param)
+      lines = eval(lines_str)
+      lines2 = eval(lines2_str)
+      cursor_position = eval(cursor_position_str)
 
 except FileNotFoundError:
     couleur_rendu = (255,255,255)
     couleur_fond = couleur("C1_BLUE")
     couleur_param = couleur("BLEU_JOLI")
+    lines = ['75','40','20']  # Liste des lignes de texte
+    lines2 = ['80', '60', '40', '20'] # Liste des lignes de texte pour 3D
+    cursor_position = 2
+
 
 
 dragging = -1
@@ -2173,7 +2244,7 @@ while run :
                                     ecrit3D(current_line)
                                 if pyEvent.type == MOUSEMOTION :
                                     return_arrow(pyEvent.pos)
-                                    bouton_gcode(Pyevent.pos)
+                                    bouton_gcode(pyEvent.pos)
                             display.flip() #mettre à jour l'affichage
                         print(run_g_code)
                         if run_g_code: 
@@ -2200,6 +2271,12 @@ while run :
                                     input_to_text_g_code(Pyevent)
                                     menu_g_code_init(lines3)
                             display.flip()
+                    # Relâchement du clic
+                    if pyEvent.type == MOUSEBUTTONUP:
+                        dragging = -1  # On arrête de déplacer l'objet
+                    if pyEvent.type == MOUSEMOTION and dragging >= 0:
+                        bouge_curseur3D(pyEvent.pos,dragging)
+                    display.flip() #mettre à jour l'affichage
 
                     if pyEvent.type == KEYDOWN:
                         input_to_text3D(pyEvent,numéro)  # Appel à la fonction pour gérer l'input
@@ -2259,7 +2336,11 @@ while run :
 data = {
     "couleur_fond" : str(couleur_fond),
     "couleur_param": str(couleur_param),
-    "couleur_rendu": str(couleur_rendu)}
+    "couleur_rendu": str(couleur_rendu),
+    "lines" : str(lines),
+    "lines2" : str(lines2),
+    "cursor_position" : str(cursor_position)
+    }
 
 with open(file_path, "w") as file:
     dump(data, file)
