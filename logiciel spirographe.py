@@ -1614,33 +1614,36 @@ def affiche_logo_github(res,image):
 
 #fonctions pour le menu G CODE :
 
-def points_3d (theta_max, N, petit_r, grand_r, p, Rsphere) :
-  #retourne la liste des points en 3D de coordonée z qui varie selon le rayon Rsphere si (grand_r-petit_r+p)<=Rpshere
-  #retourne la liste des points en 3D de coordonée z fixe égale à 0 si Rsphere = 0
+def points_3d (theta_max, N, petit_r, grand_r, p, Rsphere, nb_couches, ep_couches) :
+    '''
+    retourne la liste des points en 3D de coordonée z qui varie selon le rayon Rsphere si (grand_r-petit_r+p)<=Rpshere
+    retourne la liste des points en 3D de coordonée z fixe égale à 0 si Rsphere = 0
+    '''
+  
     theta = linspace(0.0, theta_max, N)
     diff_r = grand_r - petit_r
     q = 1.0 - (grand_r/petit_r) #arrangez vous pour que ce rapport soit différent de 1/2
     max_dist = diff_r + p
     res = []
-    if (Rsphere == 0) :
-      for i in range (N) :
-        new_x = diff_r*cos(theta[i]) + p * cos(q*theta[i])
-        new_y = diff_r*sin(theta[i]) + p * sin(q*theta[i])
-        z = 0
-        res.append((new_x, new_y, z))
-    elif (max_dist<=Rsphere) :
-      for i in range (N) :
-        new_x = diff_r*cos(theta[i]) + p * cos(q*theta[i])
-        new_y = diff_r*sin(theta[i]) + p * sin(q*theta[i])
-        z = sqrt(Rsphere*Rsphere - new_x*new_x - new_y*new_y) - sqrt (Rsphere*Rsphere - max_dist*max_dist)
-        res.append((new_x, new_y, z))
-    else :
-        print("le motif est trop grand pour la sphere")
+    for j in range (nb_couches) :
+        if (Rsphere == 0) :
+            for i in range (N) :
+                new_x = diff_r*cos(theta[i]) + p * cos(q*theta[i])
+                new_y = diff_r*sin(theta[i]) + p * sin(q*theta[i])
+                z = j*ep_couches
+                res.append((new_x, new_y, z))
+        elif (max_dist<=Rsphere) :
+            for i in range (N) :
+                new_x = diff_r*cos(theta[i]) + p * cos(q*theta[i])
+                new_y = diff_r*sin(theta[i]) + p * sin(q*theta[i])
+                z = sqrt(Rsphere*Rsphere - new_x*new_x - new_y*new_y) - sqrt (Rsphere*Rsphere - max_dist*max_dist) + j*ep_couches
+                res.append((new_x, new_y, z))
+        else:
+            print("Rsphere trop petit")
     return res
 
-def generate_gcode_points(points, ep, extrusion_rate=0.05, layer_height=0.2):
+def generate_gcode_points(points, extrusion_rate=0.05, layer_height=0.2):
   #genere le gcode à partir d'une liste de points
-  #ep = epaisseur des lignes imprimées en millimètres
     gcode = []
     gcode.append("; Début du fichier G-code")
     gcode.append("G21 ; Unités en millimètres")
@@ -1657,7 +1660,7 @@ def generate_gcode_points(points, ep, extrusion_rate=0.05, layer_height=0.2):
             distance = ((points[i][0] - points[i - 1][0]) ** 2 +
                         (points[i][1] - points[i - 1][1]) ** 2 +
                         (points[i][2] - points[i - 1][2]) ** 2) ** 0.5
-            extrusion += distance * extrusion_rate * ep * layer_height
+            extrusion += distance * extrusion_rate
             gcode.append(f"G1 X{x:.6f} Y{y:.6f} Z{z:.6f} E{extrusion:.4f}")
     gcode.append("G1 E-1 F300 ; Rétractation")
     gcode.append("G28 ; Retour à l'origine")
@@ -1666,13 +1669,13 @@ def generate_gcode_points(points, ep, extrusion_rate=0.05, layer_height=0.2):
     gcode.append("; Fin du fichier G-code")
     return "\n".join(gcode)
 
-def write_gcode (theta_max, N, petit_r, grand_r, p, Rsphere, ep) :
-  points = points_3d (theta_max, N, petit_r, grand_r, p, Rsphere)
-  gcode = generate_gcode_points (points, ep)
+def write_gcode (theta_max, N, petit_r, grand_r, p, Rsphere, nb_couches, ep_couches) :
+  points = points_3d (theta_max, N, petit_r, grand_r, p, Rsphere, nb_couches, ep_couches)
+  gcode = generate_gcode_points (points)
   if (Rsphere>=(grand_r - petit_r + p)) :
-    gcode_name = f"{theta_max:.0f}_{N}_{petit_r:.0f}_{grand_r:.0f}_{p:.0f}_{ep:.3f}_{Rsphere:.0f}.gcode"
+    gcode_name = f"{theta_max:.0f}_{N}_{petit_r:.0f}_{grand_r:.0f}_{p:.0f}_{Rsphere:.0f}_{nb_couches}_{1000*ep_couches:.0f}.gcode"
   elif (Rsphere==0) :
-    gcode_name = f"{theta_max:.0f}_{N}_{petit_r:.0f}_{grand_r:.0f}_{p:.0f}_{ep:.3f}_a_plat.gcode"
+    gcode_name = f"{theta_max:.0f}_{N}_{petit_r:.0f}_{grand_r:.0f}_{p:.0f}_a_plat_{nb_couches}_{1000*ep_couches:.0f}.gcode"
   return gcode_name, gcode
 
 def sauvegarde_fichier_gcode(name, content):
@@ -1681,7 +1684,7 @@ def sauvegarde_fichier_gcode(name, content):
     fichier = filedialog.asksaveasfilename(
         title="Enregistrer sous",
         initialfile=name,
-        filetypes=[("Fichiers GCODE", ".gcode"), ("Tous les fichiers", ".*")]
+        filetypes=[("Fichiers GCODE", "*.gcode"), ("Tous les fichiers", "*.*")]
     )
 
     if fichier:  # Si un chemin est sélectionné
@@ -1760,16 +1763,249 @@ def bouton_save_g_code(pos):
     return res
 
 def clic_g_code(pos):
-    global run_g_code
-    if bouton_save_g_code(pos):
-        sauvegarde_g_code(lines)
+    global run_g_code, cursor_position, current_line,police_taille_valeurs_champs,lines, numéro
+    coord_x, coord_y = pos
+    current_line_y = 25*window_height/32
+    current_line_x = window_width/2 - 2.5*1.1*window_width/8
+    height = 1.1*police_taille_valeurs_champs
+    width = window_width/8
+    taille_carac = 3*police_taille_valeurs_champs/5
+    if bouton_sauvegarde(pos):
+        gcode_name, gcode = write_gcode (theta_max, N, petit_r, grand_r, p, Rsphere, nb_couches, ep_couches)
         run_g_code = False
-        menu_cercle_dans_cercle_init(lines)
-        ecrit(current_line)
-    if return_arrow(pos):
+        chemin_fichier = sauvegarde_fichier_gcode(gcode_name, gcode)
+        if chemin_fichier:
+            print(f"Fichier enregistré à : {chemin_fichier}")
         run_g_code = False
-        menu_cercle_dans_cercle_init(lines)
-        ecrit(current_line)
+        if run_cdc : 
+            menu_cercle_dans_cercle_init(lines)
+        if run_cdc3D :
+            menu_cdc3D(numéro)
+    elif bouton_annulation(pos):
+        run_g_code = False
+        if run_cdc : 
+            menu_cercle_dans_cercle_init(lines)
+        if run_cdc3D :
+            menu_cdc3D(numéro)
+    elif return_arrow(pos):
+        run_g_code = False
+        if run_cdc : 
+            menu_cercle_dans_cercle_init(lines)
+        if run_cdc3D :
+            menu_cdc3D(numéro)
+    for i in range(5):
+        if (coord_y > current_line_y and coord_y < current_line_y  + height and coord_x > (i*1.1*window_width/8)+current_line_x and coord_x < (i*1.1*window_width/8)+current_line_x+width) :
+            # je suis dans le champ i
+            current_line = i
+            cursor_position = len(lines3[current_line])
+            for carac in range(len(lines3[current_line])):
+                if (coord_x < current_line_x + (len(lines3[current_line])-carac)*taille_carac) :
+                    cursor_position = len(lines3[current_line])-carac - 1
+
+def champ_gcode(num_champ):
+    '''
+    entrée :
+        num_champ : numéro du champ
+    effet :
+        colorie en blanc le champ numéro "num_champ" (efface son contenu)
+    '''
+
+    height = 1.1 * police_taille_valeurs_champs
+    width = window_width/8
+    width_2 = 1.1 * width
+    x_champ = window_width/2 + (num_champ-2.5)*width_2
+    x_texte = x_champ + width/2
+    y_champ = 25*window_height/32
+    y_texte = 49*window_height/64
+    if num_champ == 0 :
+        ecriture ("theta_max (rad)", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
+    if num_champ == 1 :
+        ecriture ("nb_points", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
+    if num_champ == 2 :
+        ecriture ("theta_max (rad)", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
+    if num_champ == 3 :
+        ecriture ("nb_points", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
+    if num_champ == 4 :
+        ecriture ("theta_max (rad)", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
+    draw.rect(screen,couleur("WHITE"),[x_champ,y_champ,width,height])
+    draw.rect(screen,couleur("BLACK"),[x_champ,y_champ,width,height],6)
+    draw.rect(screen,couleur("WHITE"),[x_champ,y_champ,width,height],2)
+
+def input_to_text_g_code(event):
+    global current_line, lines3, cursor_position, key_press_times, run_cdc
+    taille_carac = 3/5 * police_taille
+    keys = key.get_pressed()
+    longueur_current_line = len(lines3[current_line])
+
+    if event.key == K_BACKSPACE:
+        # Si Retour arrière est appuyé
+        if longueur_current_line > 1 and cursor_position > 0:
+            if cursor_position == 1 :
+                lines3[current_line] = lines3[current_line][1:]
+            elif cursor_position == (longueur_current_line) :
+                lines3[current_line] = lines3[current_line][:-1]
+            else :
+                lines3[current_line] = lines3[current_line][:(cursor_position-1)] + lines3[current_line][(cursor_position):]  # Supprime le dernier caractère
+            cursor_position -= 1
+        modifie_valeurs(lines3)
+    elif event.key == K_UP :
+        if int(lines3[current_line]) < (10**character_limit_gcode - 1) :
+            lines3[current_line] = str(int(float(lines3[current_line])) + 1)
+        cursor_position = len(lines3[current_line])
+        modifie_valeurs(lines3)
+    elif event.key == K_DOWN :
+        if int(lines3[current_line]) > 0 :
+            lines3[current_line] = str(int(float(lines3[current_line])) - 1)
+        modifie_valeurs(lines3)
+    elif event.key == K_RIGHT:
+        #si on appuie sur la flèche de droite, le curseur se déplace d'une lettre
+        if cursor_position < (longueur_current_line):
+            cursor_position += 1
+    elif event.key == K_LEFT:
+        #si on appuie sur la flèche de gauche, le curseur se déplace d'une lettre
+        if cursor_position > 0:
+            cursor_position -=1
+    else:
+        # Autres touches
+        if longueur_current_line < character_limit_gcode:
+        # Ajouter le caractère à la ligne actuelle
+            letter = event.unicode
+            if letter and letter.isdigit():  # Si la touche produit un caractère (ignore Shift, Ctrl, etc.)
+                if cursor_position == 0:
+                    lines3[current_line] = letter + lines3[current_line]
+                elif cursor_position < (longueur_current_line):
+                    lines3[current_line] = lines3[current_line][:(cursor_position)] + letter + lines3[current_line][(cursor_position):]
+                else:
+                    lines3[current_line] += letter
+                cursor_position += 1
+                modifie_valeurs(lines3)
+
+def ecrit_champ_gcode(num_champ):
+    '''
+    entrée :
+        num_champ : numéro du champ
+    effet :
+        met à jour le contenu du champ numéro "current_line"
+    '''
+    global police_taille_valeurs_champs
+    current_line_y = 25*window_height/32
+    current_line_x = window_width/2 + (num_champ - 2.5)*1.1*window_width/8
+    spacing = 1/5*police_taille_valeurs_champs #marge gauche
+    taille_carac = 3/5 * police_taille_valeurs_champs
+    indent_x,indent_y = current_line_x+spacing,current_line_y # position
+    champ_gcode(num_champ)
+    # Rendre et afficher chaque ligne de texte
+    police = font.SysFont("Courier New", police_taille_valeurs_champs)
+    txt_surf = police.render(lines3[num_champ], True, couleur("BLACK"))
+    screen.blit(txt_surf, (indent_x, indent_y))
+    display.update()
+
+def modifie_valeurs(lines3):
+    global theta_max, N, grand_r, petit_r, Rsphere, nb_couches, ep_couches, p
+    theta_max = float(lines3[0])
+    N = int(lines3[1])
+    nb_couches = int(lines3[2])
+    ep_couches = float(lines3[3])/1000
+    grand_r = float(lines3[4])
+    petit_r = float(int(round((rapport_petit_r*grand_r), 0)))
+    p = float(int(round((rapport_p*grand_r), 0)))
+    Rsphere = float(int(round((rapport_rsphere*grand_r), 0)))
+
+def bouton_sauvegarde(pos):
+    '''
+    entrée :
+        pos = (x,y) : la position du curseur
+    effet :
+        affiche le bouton SAUVEGARDER LE G CODE :
+            en blanc si le curseur n'est pas dessus
+            en vert à l'inverse
+    sortie :
+        renvoie True si le curseur est sur le bouton, False sinon
+    '''
+    res = False
+    message = "SAUVEGARDER LE G CODE"
+    (cursor_x, cursor_y) = pos
+    width = police_taille*3/5*(len(message)+1)
+    height = police_taille
+    pos_x = 2*window_width/5
+    pos_y = 9*window_height/10
+    draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0)
+    if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
+        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2)
+        ecriture(message,couleur("GREEN"),police_taille,(pos_x,pos_y))
+        res = True
+
+    else :
+        draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2)
+        ecriture(message,couleur("WHITE"),police_taille,(pos_x,pos_y))
+    return res
+
+def bouton_annulation(pos):
+    '''
+    entrée :
+        pos = (x,y) : la position du curseur
+    effet :
+        affiche le bouton ANNULER :
+            en blanc si le curseur n'est pas dessus
+            en vert à l'inverse
+    sortie :
+        renvoie True si le curseur est sur le bouton, False sinon
+    '''
+    res = False
+    message = "ANNULER"
+    (cursor_x, cursor_y) = pos
+    width = police_taille*3/5*(len(message)+1)
+    height = police_taille
+    pos_x = 23*window_width/32
+    pos_y = 9*window_height/10
+    draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0)
+    if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
+        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2)
+        ecriture(message,couleur("GREEN"),police_taille,(pos_x,pos_y))
+        res = True
+    else :
+        draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2)
+        ecriture(message,couleur("WHITE"),police_taille,(pos_x,pos_y))
+    return res
+
+def menu_g_code_init(lines3):
+    screen.fill((0, 0, 0))  # Fond noir
+    i = 1
+    ecriture("Vous vous appretez à sauvegarder un fichier gcode" , (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("généré selon les paramètres suivants" , (255,255,255), police_taille_infos, (window_width/2, (2*i+1)*window_height/24))
+    i = i+1.5
+    ecriture("angle de rotation variant de 0 à " + str(int(theta_max)) + " rad", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    i = i+1
+    if N<=1 :
+        ecriture("Motif de " + str(N) + " point", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    elif N>1 :
+        ecriture("Motif de " + str(N) + " points", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    i = i+1
+    if nb_couches == 1 :
+        ecriture("une couche d'epaisseur " + str(ep_couches) + " mm", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    elif (nb_couches >= 2) :
+        ecriture(str(nb_couches) + " couches d'epaisseur " + str(ep_couches) + " mm", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    i = i+1
+    ecriture("rayon du grand cercle égal à " + str(float(grand_r)/10) + " cm", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    i = i+1
+    ecriture("rayon du petit cercle égal à " + str(float(petit_r)/10) + " cm", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    i = i+1
+    ecriture("stylo posé à " + str(float(p)/10) + " cm du centre du petit cercle", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    i = i+1
+    if Rsphere == 0 :
+        ecriture("à plat", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    elif (Rsphere >= (grand_r-petit_r+p)) :
+        ecriture("motif posé sur une sphere de rayon " + str(float(Rsphere)/10) + " cm", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+
+    bouton_sauvegarde ((0, 0))
+    bouton_annulation ((0, 0))
+    return_arrow((0,0))
+    ecrit_champ_gcode (0)
+    ecrit_champ_gcode (1)
+    ecrit_champ_gcode (2)
+    ecrit_champ_gcode (3)
+    ecrit_champ_gcode (4)
+    display.flip()
 
 
 # fonctoins pour le menu Ellipse dans Ellipse :
@@ -1816,6 +2052,25 @@ police = font.SysFont("Courier New", police_taille)  # Police par défaut, taill
 character_limit = 7  # Limite de caractères par ligne
 lines = ['75','40','20']  # Liste des lignes de texte
 lines2 = ['80', '60', '40', '20'] # Liste des lignes de texte pour 3D
+police_taille_valeurs_champs = int(window_height/22)
+police_taille_infos = int(window_height/36)
+
+# variables globales G CODE
+theta_max = 6000.0
+N = 100000
+petit_r = 39
+grand_r = 100
+p = 35
+Rsphere = 175
+nb_couches = 4
+ep_couches = 1
+lines3 = [str(int(theta_max)), str(N), str(nb_couches), str(1000*ep_couches), str(grand_r)]
+rapport_rsphere = float(Rsphere)/float(grand_r)
+rapport_petit_r = float(petit_r)/float(grand_r)
+rapport_p = float(p)/float(grand_r)
+character_limit_gcode = 7
+
+
 current_line = 0  # Index de la ligne courante
 cursor_position = 2
 couleur_g_cercle = couleur("RED")
@@ -1899,8 +2154,12 @@ while run :
                                     menu_cercle_dans_cercle_init(lines)
                                     ecrit(current_line)
                             display.flip() #mettre à jour l'affichage
-                        if run_g_code:  
-                            menu_g_code(theta_max = 6000.0, N=10000, petit_r=lines[1], grand_r=lines[0], p=lines[2], Rsphere=0)
+                        if run_g_code: 
+                            lines3 = [str(int(theta_max)), str(N), str(nb_couches), str(1000*ep_couches), str(lines[0])]
+                            rapport_rsphere = 0 # float(Rsphere)/float(grand_r)
+                            rapport_petit_r = float(lines[1])/float(lines[0])
+                            rapport_p = float(lines[2])/float(lines[0])
+                            menu_g_code_init(lines3)
                         # Boucle g_code
                         while run_g_code:
                             for Pyevent in event.get():
@@ -1908,16 +2167,16 @@ while run :
                                     run_g_code = False
                                     run_cdc = False
                                     run = False
-                                if Pyevent.type == KEYDOWN and Pyevent.key == K_RETURN:  # Appuyer sur Entrée pour sauvegarder
-                                    run_g_code = False
-                                    sauvegarde_g_code(lines)
-                                    menu_cercle_dans_cercle_init(lines)
-                                    ecrit(current_line)
-                                if Pyevent.type == MOUSEBUTTONDOWN:
-                                    clic_g_code(Pyevent.pos)
-                                if Pyevent.type == MOUSEMOTION:
-                                    bouton_save_g_code(Pyevent.pos)
+                                if Pyevent.type == MOUSEMOTION :
+                                    bouton_sauvegarde(Pyevent.pos)
+                                    bouton_annulation(Pyevent.pos)
                                     return_arrow(Pyevent.pos)
+                                    display.flip()
+                                if Pyevent.type == MOUSEBUTTONDOWN :
+                                    clic_g_code(Pyevent.pos)
+                                if Pyevent.type == KEYDOWN:
+                                    input_to_text_g_code(Pyevent)
+                                    menu_g_code_init(lines3)
                             display.flip()
 
                     if pyEvent.type == KEYDOWN:
