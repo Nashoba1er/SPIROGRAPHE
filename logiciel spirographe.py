@@ -7,7 +7,7 @@ from webbrowser import open as webopen
 from json import dump, load
 
 script_dir = path.dirname(__file__)  # Dossier où se trouve le script
-img_path_github = path.join(script_dir, "img", "github.png")  # Sous-dossier "img"
+img_path_github = path.join(script_dir, "ressources", "github.png")  # Sous-dossier "img"
 # Charger et redimensionner l'image
 logo_github = image.load(img_path_github)  # Charger l'image
 
@@ -1080,7 +1080,7 @@ def menu_cdc3D(numéro):
     curseurs_init3D()
 
     script_dir = path.dirname(__file__)  # Dossier où se trouve le script
-    img_path = path.join(script_dir, "img", "sphere.png")  # Sous-dossier "img"
+    img_path = path.join(script_dir, "ressources", "sphere.png")  # Sous-dossier "img"
     # Charger et redimensionner l'image
     img = image.load(img_path)  # Charger l'image
     img = transform.scale(img, (window_width // 18, window_width // 18))  # Redimensionner
@@ -1520,7 +1520,7 @@ def clic_param_et_info(coord):
         webopen(url)
     if bouton_compte_rendu(coord):
         script_dir = path.dirname(__file__)  # Dossier où se trouve le script
-        presentation_path = path.join(script_dir, "img", "project_tech__spirographe-4.pdf")  # Sous-dossier "img"
+        presentation_path = path.join(script_dir, "ressources", "project_tech__spirographe-4.pdf")  # Sous-dossier "img"
         startfile(presentation_path)
     if bouton_couleur(coord):
         run_couleur = True
@@ -2303,3 +2303,4 @@ quit()
         #     --add-data "images/image1.png;images" \
         #     --add-data "images/image2.jpg;images" \
         #     "C:/Users/antoi/Documents_local/dossier_mines_st_etienne/cours/protech/code/logiciel spirographe.py"
+  
