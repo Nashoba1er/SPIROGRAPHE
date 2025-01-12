@@ -3,8 +3,11 @@ from pygame import K_TAB, K_LSHIFT, K_RSHIFT, display, event, QUIT, MOUSEBUTTOND
 from numpy import linspace, cos, sin, sqrt, all
 from tkinter import filedialog, Tk
 from os import path, startfile
-from webbrowser import open
+from webbrowser import open as webopen
+from json import dump, load
+
 logo_github = image.load("C:/Users/antoi/Documents_local/dossier_mines_st_etienne/cours/protech/code/github.png")
+
 
 
 # couleurs
@@ -960,43 +963,83 @@ def menu_couleur():
         - affiche des boutons indiquant les couleurs pour le rendu
     '''
     global couleur_rendu,couleur_fond
-    screen.fill(couleur_fond)
+    screen.fill(couleur_param)
     return_arrow((0,0))
 
-    ecriture("Couleur du fond",couleur("WHITE"),police_taille,(window_width/4,window_height/4))
-    ecriture("Couleur du rendu",couleur("WHITE"),police_taille,(3*window_width/4,window_height/4))
+    ecriture("fond",couleur("WHITE"),police_taille,(window_width/5,window_height/5))
+    ecriture("paramètres",couleur("WHITE"),police_taille,(window_width/2,window_height/5))
+    ecriture("rendu",couleur("WHITE"),police_taille,(4*window_width/5,window_height/5))
     
     taille = window_width/16
 
-    draw.rect(screen,couleur_rendu,[window_width/4-taille/2-1,window_height/4+taille-1,taille+2,taille+2],2)
-    draw.rect(screen,couleur_rendu,[3*window_width/4-taille/2,window_height/4+taille,taille,taille],0)
+    draw.rect(screen,couleur_fond,[window_width/5-taille/2,window_height/5+taille,taille,taille],0)
+    draw.rect(screen,couleur("WHITE"),[window_width/2-taille/2,window_height/5+taille,taille+1,taille+1],2)
+    draw.rect(screen,couleur_rendu,[4*window_width/5-taille/2,window_height/5+taille,taille,taille],0)
 
-    # couleurs au choix :
 
-  
-    draw.rect(screen,couleur("WHITE"),[window_width/8 + 0 * taille * 3/2,window_height/2+taille,taille,taille])
-    draw.rect(screen,couleur("WHITE"),[window_width/8 + 1 * taille * 3/2,window_height/2+taille,taille,taille])
-    draw.rect(screen,couleur("BLACK"),[window_width/8 + 2 * taille * 3/2,window_height/2+taille,taille,taille])
+    # couleurs au choix fond:
+    boutons_choix_couleur((0,0))
+    
 
-    draw.rect(screen,couleur("WHITE"),[window_width/8 + 0 * taille * 3/2,window_height/2+5*taille/2,taille,taille])
-    draw.rect(screen,couleur("WHITE"),[window_width/8 + 1 * taille * 3/2,window_height/2+5*taille/2,taille,taille])
-    draw.rect(screen,couleur("BLACK"),[window_width/8 + 2 * taille * 3/2,window_height/2+5*taille/2,taille,taille])
-
-def survole_bouton(coord):
+def boutons_choix_couleur(coord):
     '''
     entrée : les coordonnées de la souris
     effet : entoure en vert les boutons de couleur que le curseur survole
     '''
-    return_arrow(coord)
+
+    taille = window_width/16
+    x_0 = window_width/5-5*taille/4
+    y_0 = 2*window_height/5+taille
+    incrément = 1.5*taille
+    couleur_1 = couleur_fond
+    couleur_2 = couleur_param
+    couleur_3 = couleur_rendu
+
+    # couleurs au choix fond:
+
+    couleurs = [["C1_BLUE","BLEU_JOLI","PINK3","GRIS_CLAIR","SAUGE_LOANN","ROSE_CLAIR"],
+               ["C1_BLUE","BLEU_JOLI","PINK3","GRIS_CLAIR","SAUGE_LOANN","ROSE_CLAIR"],
+               ["C1_BLUE","BLEU_JOLI","PINK3","GRIS_CLAIR","SAUGE_LOANN","ROSE_CLAIR"]]
+    
+    for i in range(6):
+        if bouton_choix_couleur(x_0+(i%2)*incrément,y_0+i//2*incrément,taille,couleur(couleurs[0][i]),coord):
+            couleur_1 = couleur(couleurs[0][i])
+    
+    x_0 = window_width/2 - 5*taille/4
+
+    for i in range(6):
+        if bouton_choix_couleur(x_0+(i%2)*incrément,y_0+i//2*incrément,taille,couleur(couleurs[1][i]),coord):
+            couleur_2 = couleur(couleurs[0][i])
+
+    x_0 = 4*window_width/5-5*taille/4
+
+    for i in range(6):
+        if bouton_choix_couleur(x_0+(i%2)*incrément,y_0+i//2*incrément,taille,couleur(couleurs[2][i]),coord):
+            couleur_3 = couleur(couleurs[0][i])
+
+    return (couleur_1,couleur_2,couleur_3)
+
+def bouton_choix_couleur(x,y,taille,color,coord):
+    pos_x, pos_y = coord
+    draw.rect(screen,color,[x,y,taille,taille],0)
+    if pos_x > x and pos_x < x + taille and pos_y > y and pos_y < y + taille :
+        draw.rect(screen,couleur("GREEN"),[x,y,taille,taille],2)
+        return True
+    draw.rect(screen,couleur("WHITE"),[x,y,taille,taille],2)
+    return False 
 
 def clic_couleur(coord):
     '''
     entrée : les coordonnées du clic
     effet : change la couleur selon le clic
     '''
-    global run_couleur
+    global run_couleur,couleur_fond,couleur_param,couleur_rendu
+    (couleur_fond,couleur_param,couleur_rendu) = boutons_choix_couleur(coord)
+
     if return_arrow(coord):
         run_couleur = False
+    menu_couleur()
+    display.flip()
     
 
 #fonctions pour le menu demi-sphère :
@@ -1474,19 +1517,9 @@ def clic_param_et_info(coord):
         run_param_et_info = False
     if bouton_github(coord):
         url = "https://github.com/Nashoba1er/SPIROGRAPHE"
-        open(url)
+        webopen(url)
     if bouton_compte_rendu(coord):
-        # Construire le chemin relatif
-        current_dir = path.dirname(__file__)  # Répertoire du script actuel
-        pdf_path = path.join(current_dir,"présentation", "projet_tech_spirographe-4.pdf")
-
-        if path.exists(pdf_path):
-            startfile(pdf_path)
-        else:
-            print("Fichier introuvable :", pdf_path)
-        # Convertir en chemin absolu et formater en URL compatible
-        absolute_path = path.abspath(pdf_path)
-        open(f"file:///{absolute_path}")
+        open("C:/Users/antoi/Documents_local/dossier_mines_st_etienne/cours/protech/code/présentation/project_tech__spirographe-4.pdf")
     if bouton_couleur(coord):
         run_couleur = True
     if bouton_ede(coord):
@@ -1787,9 +1820,23 @@ current_line = 0  # Index de la ligne courante
 cursor_position = 2
 couleur_g_cercle = couleur("RED")
 couleur_p_cercle = couleur("BLEU_FONCE")
+
 couleur_rendu = couleur("WHITE")
 couleur_fond = couleur("C1_BLUE")
 couleur_param = couleur("BLEU_JOLI")
+
+try:
+    with open("data_prout.json", "r") as file:
+        data = load(file)
+        couleur_fond_str = data.get("couleur_fond", str(couleur("C1_BLUE")))  # Valeur par défaut 0 si "x" n'existe pas
+
+        color_tuple = eval(couleur_fond_str)
+except FileNotFoundError:
+    couleur_fond = couleur("C1_BLUE")
+    couleur_param = couleur("BLEU_JOLI")
+    couleur_rendu = couleur("WHITE")
+
+
 dragging = -1
 d_equal_r = False
 
@@ -1944,7 +1991,8 @@ while run :
                                     run_param_et_info = False
                                     run_couleur = False
                                 if pyEvent.type == MOUSEMOTION :
-                                    survole_bouton(pyEvent.pos)
+                                    boutons_choix_couleur(pyEvent.pos)
+                                    return_arrow(pyEvent.pos)
                                 if pyEvent.type == MOUSEBUTTONDOWN :
                                     clic_couleur(pyEvent.pos)
                             display.flip()
@@ -1967,4 +2015,26 @@ while run :
 
     display.flip() #mettre à jour l'affichage
 
+print(str(couleur_fond))
+
+# Sauvegarder plusieurs valeurs
+data = {
+    "couleur_fond" : str(couleur_fond),
+    "couleur_param": str(couleur_param),
+    "couleur_rendu": str(couleur_rendu)}
+
+with open("data.json", "w") as file:
+    dump(data, file)
+
+
 quit()
+
+
+
+# commande pour convertir le fichier python en fichier .exe :
+
+        # pyinstaller --onefile \
+        #     --add-data "documents/mon_fichier.pdf;documents" \
+        #     --add-data "images/image1.png;images" \
+        #     --add-data "images/image2.jpg;images" \
+        #     "C:/Users/antoi/Documents_local/dossier_mines_st_etienne/cours/protech/code/logiciel spirographe.py"
