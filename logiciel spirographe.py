@@ -1000,9 +1000,9 @@ def boutons_choix_couleur(coord):
 
     # couleurs au choix fond:
 
-    couleurs = [["C1_BLUE","BLEU_JOLI","PINK3","GRIS_CLAIR","SAUGE_LOANN","ROSE_CLAIR"],
-               ["C1_BLUE","BLEU_JOLI","PINK3","GRIS_CLAIR","SAUGE_LOANN","ROSE_CLAIR"],
-               ["C1_BLUE","BLEU_JOLI","PINK3","GRIS_CLAIR","SAUGE_LOANN","ROSE_CLAIR"]]
+    couleurs = [["C1_BLUE","BLEU_JOLI","BLACK","WHITE","SAUGE_LOANN","ROSE_CLAIR"],
+               ["C1_BLUE","BLEU_JOLI","BLACK","BLEU_FONCE","BG_COLOR","VIOLET_FONCE"],
+               ["BLACK","RED","WHITE","MAGENTA","ORANGE","YELLOW"]]
     
     for i in range(6):
         if bouton_choix_couleur(x_0+(i%2)*incrément,y_0+i//2*incrément,taille,couleur(couleurs[0][i]),coord):
@@ -1012,13 +1012,13 @@ def boutons_choix_couleur(coord):
 
     for i in range(6):
         if bouton_choix_couleur(x_0+(i%2)*incrément,y_0+i//2*incrément,taille,couleur(couleurs[1][i]),coord):
-            couleur_2 = couleur(couleurs[0][i])
+            couleur_2 = couleur(couleurs[1][i])
 
     x_0 = 4*window_width/5-5*taille/4
 
     for i in range(6):
         if bouton_choix_couleur(x_0+(i%2)*incrément,y_0+i//2*incrément,taille,couleur(couleurs[2][i]),coord):
-            couleur_3 = couleur(couleurs[0][i])
+            couleur_3 = couleur(couleurs[2][i])
 
     return (couleur_1,couleur_2,couleur_3)
 
@@ -1100,7 +1100,7 @@ def clic_cdc3D(coord, numéro):
     entrée : les coordonnées du clic
     effet : change la couleur selon le clic
     '''
-    global run_cdc3D
+    global run_cdc3D, run_g_code
     
     global current_line, cursor_position, run_zoom_rendu, run_cdc, run_zoom_schema, dragging
     coord_x, coord_y = coord
@@ -1145,7 +1145,8 @@ def clic_cdc3D(coord, numéro):
         numéro = 2
 
     if bouton_gcode(coord):
-        print("clic sur le bouton G CODE")
+        run_g_code = True
+        run_zoom_rendu = False
 
     display.flip()
 
@@ -1263,6 +1264,7 @@ def modifie_rayons3D(lines2,numéro):
 
         rendu3D(r1,r2,p,couleur_rendu,numéro,Rsph)
     draw.rect(screen,couleur_param,[0,window_height/5+window_height/40-window_height/50,window_width/2, police_taille*1.3])
+    if is_float(lines2[1]) and is_float(lines2[2]) and is_float(lines2[3])
     S_max = float(lines2[1]) - float(lines2[2]) + float(lines2[3]) 
     ecriture("Rayon de la sphère :",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5 + window_height/40))
     ecriture("(S max = "+str(S_max)+")",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
@@ -1466,7 +1468,6 @@ def points3D(theta_max, N, petit_r, grand_r, p,Rsphere) :
     x = []
     y = []
     z = []
-    print (Rsphere)
     for i in range ( N ) :
         new_x = diff_r*cos(theta[i]) + p * cos(q*theta[i])
         new_y = diff_r*sin(theta[i]) + p * sin(q*theta[i])
@@ -1641,7 +1642,7 @@ def points_3d (theta_max, N, petit_r, grand_r, p, Rsphere, nb_couches, ep_couche
                 z = sqrt(Rsphere*Rsphere - new_x*new_x - new_y*new_y) - sqrt (Rsphere*Rsphere - max_dist*max_dist) + j*ep_couches
                 res.append((new_x, new_y, z))
         else:
-            print("Rsphere trop petit")
+            ecriture("Rsphere trop petit",couleur("RED"),int(police_taille*1.3),(3*window_width/4,window_height/2))
     return res
 
 def generate_gcode_points(points, extrusion_rate=0.05, layer_height=0.2):
@@ -2165,7 +2166,34 @@ while run :
                                     ecrit3D(current_line)
                                 if pyEvent.type == MOUSEMOTION :
                                     return_arrow(pyEvent.pos)
+                                    bouton_gcode(Pyevent.pos)
                             display.flip() #mettre à jour l'affichage
+                        print(run_g_code)
+                        if run_g_code: 
+                            lines3 = [str(int(theta_max)), str(N), str(nb_couches), str(1000*ep_couches), str(lines2[1])]
+                            rapport_rsphere = float(lines2[0])/float(lines2[1])
+                            rapport_petit_r = float(lines2[2])/float(lines2[1])
+                            rapport_p = float(lines2[3])/float(lines2[1])
+                            menu_g_code_init(lines3)
+                        # Boucle g_code
+                        while run_g_code:
+                            for Pyevent in event.get():
+                                if Pyevent.type == QUIT:
+                                    run_g_code = False
+                                    run_cdc3D = False
+                                    run = False
+                                if Pyevent.type == MOUSEMOTION :
+                                    bouton_sauvegarde(Pyevent.pos)
+                                    bouton_annulation(Pyevent.pos)
+                                    return_arrow(Pyevent.pos)
+                                    display.flip()
+                                if Pyevent.type == MOUSEBUTTONDOWN :
+                                    clic_g_code(Pyevent.pos)
+                                if Pyevent.type == KEYDOWN:
+                                    input_to_text_g_code(Pyevent)
+                                    menu_g_code_init(lines3)
+                            display.flip()
+
                     if pyEvent.type == KEYDOWN:
                         input_to_text3D(pyEvent,numéro)  # Appel à la fonction pour gérer l'input
                         ecrit3D(current_line)
@@ -2219,8 +2247,6 @@ while run :
 
     display.flip() #mettre à jour l'affichage
 
-print(str(couleur_fond))
-
 # Sauvegarder plusieurs valeurs
 data = {
     "couleur_fond" : str(couleur_fond),
@@ -2237,9 +2263,5 @@ quit()
 
 # commande pour convertir le fichier python en fichier .exe :
 
-        # pyinstaller --onefile \
-        #     --add-data "documents/mon_fichier.pdf;documents" \
-        #     --add-data "images/image1.png;images" \
-        #     --add-data "images/image2.jpg;images" \
-        #     "C:/Users/antoi/Documents_local/dossier_mines_st_etienne/cours/protech/code/logiciel spirographe.py"
+        # pyinstaller --onefile --add-data "ressources/github.png;ressources" --add-data "ressources/sphere.png;ressources" --add-data "ressources/project_tech_spirographe_4.pdf;ressources" "C:/Users/antoi/Documents_local/dossier_mines_st_etienne/cours/protech/code/logiciel spirographe.py"
   
