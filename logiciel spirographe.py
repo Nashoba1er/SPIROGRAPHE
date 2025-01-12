@@ -2018,20 +2018,27 @@ cursor_position = 2
 couleur_g_cercle = couleur("RED")
 couleur_p_cercle = couleur("BLEU_FONCE")
 
-couleur_rendu = couleur("WHITE")
-couleur_fond = couleur("C1_BLUE")
-couleur_param = couleur("BLEU_JOLI")
-
+# Set les couleurs et valeurs rempli lors de la dernière utilisation
+# Construire le chemin vers le fichier JSON
+current_dir = path.dirname(__file__)  # Répertoire actuel du script
+file_path = path.join(current_dir, "ressources", "data.json")
 try:
-    with open("data_prout.json", "r") as file:
-        data = load(file)
-        couleur_fond_str = data.get("couleur_fond", str(couleur("C1_BLUE")))  # Valeur par défaut 0 si "x" n'existe pas
+  with open(file_path, "r") as file:
+      data = load(file)
+      print("data trouvé !")
+      print(data)
+      couleur_param_str = data.get("couleur_param", "(255,255,255)")  # Valeur par défaut 0 si "x" n'existe pas
+      couleur_fond_str = data.get("couleur_fond", "(153, 204, 255)")  # Valeur par défaut 0 si "x" n'existe pas
+      couleur_rendu_str = data.get("couleur_rendu", "(169, 184, 204)")  # Valeur par défaut 0 si "x" n'existe pas
+      couleur_param = eval(couleur_param_str)
+      couleur_fond = eval(couleur_fond_str)
+      couleur_rendu = eval(couleur_rendu_str)
+      print("couleur param vaut",couleur_param)
 
-        color_tuple = eval(couleur_fond_str)
 except FileNotFoundError:
+    couleur_rendu = (255,255,255)
     couleur_fond = couleur("C1_BLUE")
     couleur_param = couleur("BLEU_JOLI")
-    couleur_rendu = couleur("WHITE")
 
 
 dragging = -1
@@ -2248,20 +2255,26 @@ while run :
     display.flip() #mettre à jour l'affichage
 
 # Sauvegarder plusieurs valeurs
+
 data = {
     "couleur_fond" : str(couleur_fond),
     "couleur_param": str(couleur_param),
     "couleur_rendu": str(couleur_rendu)}
 
-with open("data.json", "w") as file:
+with open(file_path, "w") as file:
     dump(data, file)
 
+print("après modif :")
+
+print(data)
 
 quit()
 
 
 
+
+
 # commande pour convertir le fichier python en fichier .exe :
 
-        # pyinstaller --onefile --add-data "ressources/github.png;ressources" --add-data "ressources/sphere.png;ressources" --add-data "ressources/project_tech_spirographe_4.pdf;ressources" "C:/Users/antoi/Documents_local/dossier_mines_st_etienne/cours/protech/code/logiciel spirographe.py"
+        # pyinstaller --onefile --add-data "ressources/data.json;ressources" --add-data "ressources/github.png;ressources" --add-data "ressources/sphere.png;ressources" --add-data "ressources/project_tech_spirographe_4.pdf;ressources" "C:/Users/antoi/Documents_local/dossier_mines_st_etienne/cours/protech/code/logiciel spirographe.py"
   
