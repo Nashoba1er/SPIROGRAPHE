@@ -1518,7 +1518,6 @@ def clic_param_et_info(coord):
     if bouton_compte_rendu(coord):
         script_dir = path.dirname(__file__)  # Dossier où se trouve le script
         presentation_path = path.join(script_dir, "img", "project_tech__spirographe-4.pdf")  # Sous-dossier "img"
-        #presentation = image.load(presentation_path)  # Charger l'image
         startfile(presentation_path)
     if bouton_couleur(coord):
         run_couleur = True
@@ -1898,6 +1897,8 @@ while run :
                                     run_zoom_rendu = False
                                     menu_cercle_dans_cercle_init(lines)
                                     ecrit(current_line)
+                                if pyEvent.type == MOUSEMOTION :
+                                    return_arrow(pyEvent.pos)
                             display.flip() #mettre à jour l'affichage
                         if run_g_code:  
                             menu_g_code(theta_max = 6000.0, N=10000, petit_r=lines[1], grand_r=lines[0], p=lines[2], Rsphere=0)
@@ -1961,6 +1962,8 @@ while run :
                                     run_zoom_rendu = False
                                     menu_cdc3D(numéro)
                                     ecrit3D(current_line)
+                                if pyEvent.type == MOUSEMOTION :
+                                    return_arrow(pyEvent.pos)
                             display.flip() #mettre à jour l'affichage
                     if pyEvent.type == KEYDOWN:
                         input_to_text3D(pyEvent,numéro)  # Appel à la fonction pour gérer l'input
