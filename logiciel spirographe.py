@@ -1264,8 +1264,8 @@ def modifie_rayons3D(lines2,numéro):
 
         rendu3D(r1,r2,p,couleur_rendu,numéro,Rsph)
     draw.rect(screen,couleur_param,[0,window_height/5+window_height/40-window_height/50,window_width/2, police_taille*1.3])
-    if is_float(lines2[1]) and is_float(lines2[2]) and is_float(lines2[3])
-    S_max = float(lines2[1]) - float(lines2[2]) + float(lines2[3]) 
+    if is_float(lines2[1]) and is_float(lines2[2]) and is_float(lines2[3]):
+        S_max = float(lines2[1]) - float(lines2[2]) + float(lines2[3]) 
     ecriture("Rayon de la sphère :",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5 + window_height/40))
     ecriture("(S max = "+str(S_max)+")",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
 
