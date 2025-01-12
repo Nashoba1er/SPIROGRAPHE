@@ -2077,7 +2077,8 @@ couleur_p_cercle = couleur("BLEU_FONCE")
 # Set les couleurs et valeurs rempli lors de la dernière utilisation
 # Construire le chemin vers le fichier JSON
 current_dir = path.dirname(__file__)  # Répertoire actuel du script
-file_path = path.join(current_dir, "ressources", "data.json")
+file_path = path.join(current_dir, "data.json")
+
 try:
   with open(file_path, "r") as file:
       data = load(file)
