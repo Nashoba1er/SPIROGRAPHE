@@ -603,15 +603,15 @@ def input_to_text(event):
             current_line += 1
             cursor_position = len(lines[current_line])
     elif event.key == K_UP :
-        if is_float(lines[current_line]):
+        if is_float(lines[current_line]) and int(float(lines[current_line])) < 100:
             lines[current_line] = str(int(float(lines[current_line])) + 1)
-        cursor_position = len(lines[current_line])
-        modifie_rayons(lines)
+            cursor_position = len(lines[current_line])
+            modifie_rayons(lines)
     elif event.key == K_DOWN :
-        if is_float(lines[current_line]):
+        if is_float(lines[current_line]) and int(float(lines[current_line])) > 0:
             lines[current_line] = str(int(float(lines[current_line])) - 1)
-        cursor_position = len(lines[current_line])
-        modifie_rayons(lines)
+            cursor_position = len(lines[current_line])
+            modifie_rayons(lines)
     elif event.key == K_RIGHT:
         #si on appuie sur la flèche de droite, le curseur se déplace d'une lettre
         if cursor_position < (longueur_current_line):
@@ -1068,7 +1068,10 @@ def menu_cdc3D(numéro):
 
     draw.rect(screen,couleur_param,[0,0,window_width/2,window_height],0)
     draw.rect(screen,couleur_param,[0,window_height/5+window_height/40-window_height/50,window_width/2, police_taille*1.3])
-    S_max = float(lines2[1]) - float(lines2[2]) + float(lines2[3]) 
+    if is_float(lines2[1]) and is_float(lines2[2]) and is_float(lines2[3]):
+        S_max = float(lines2[1]) - float(lines2[2]) + float(lines2[3]) 
+    else : 
+        S_max = "non défini"
     ecriture("Rayon de la sphère :",couleur_texte,int(3/5*police_taille),(window_width/4,window_height/5 + window_height/40))
     ecriture("(S max = "+str(S_max)+")",couleur_texte,int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
     ecriture("Saisie des paramètres",couleur_texte,police_taille,(window_width/4,window_height/8))
@@ -1130,18 +1133,17 @@ def clic_cdc3D(coord, numéro):
             for carac in range(len(lines2[current_line])):
                 if (coord_x < current_line_x + (len(lines2[current_line])-carac)*taille_carac) :
                     cursor_position = len(lines2[current_line])-carac - 1
+            print("curseur paint 1")
             draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,taille_curseur],0)
-        
+            
         # Vérifie si le clic est sur un curseur
         if coord_y > (i)*espace+current_line1_y + 2 * window_height/32 and coord_y < (i)*espace+current_line1_y + 4 * window_height/32 :
             # je suis à hauteur du curseur
             if coord_x > current_line_x and coord_x < current_line_x  + width :
                 dragging = i  # On commence à déplacer l'objet
-    #clic sur le shéma
-    if (coord_x > window_width/2 and coord_y < window_height/2):
-        run_zoom_schema = True 
+
     #clic sur le rendu
-    if (coord_x > window_width/2 and coord_y > window_height/2):
+    if (coord_x > window_width/2 and coord_y > 2*window_height/10):
         run_zoom_rendu = True
     #clic sur la flèche retour
     if return_arrow(coord):
@@ -1200,7 +1202,7 @@ def input_to_text3D(event,numéro):
             cursor_position -= 1
     elif event.key == K_RETURN:
         # Si 'Entrée' est appuyé,
-        if current_line < 2:
+        if current_line < 3:
             draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
             current_line += 1
             cursor_position = len(lines2[current_line])
@@ -1222,15 +1224,15 @@ def input_to_text3D(event,numéro):
             current_line += 1
             cursor_position = len(lines2[current_line])
     elif event.key == K_UP :
-        if is_float(lines2[current_line]):
+        if is_float(lines2[current_line]) and int(float(lines2[current_line])) < 100:
             lines2[current_line] = str(int(float(lines2[current_line])) + 1)
-        cursor_position = len(lines2[current_line])
-        modifie_rayons3D(lines2,numéro)
+            cursor_position = len(lines2[current_line])
+            modifie_rayons3D(lines2,numéro)
     elif event.key == K_DOWN :
-        if is_float(lines2[current_line]):
+        if is_float(lines2[current_line]) and int(float(lines[current_line])) > 0:
             lines2[current_line] = str(int(float(lines2[current_line])) - 1)
-        cursor_position = len(lines2[current_line])
-        modifie_rayons3D(lines2,numéro)
+            cursor_position = len(lines2[current_line])
+            modifie_rayons3D(lines2,numéro)
     elif event.key == K_RIGHT:
         #si on appuie sur la flèche de droite, le curseur se déplace d'une lettre
         if cursor_position < (longueur_current_line):
@@ -1270,13 +1272,16 @@ def modifie_rayons3D(lines2,numéro):
         r1 = float(lines2[1])*(window_height/4)/100
         r2 = float(lines2[2])*(window_height/4)/100
         p = float(lines2[3])*(window_height/4)/100
-
         rendu3D(r1,r2,p,couleur_rendu,numéro,Rsph)
+    else :
+        ecriture("Problème valeurs",couleur("RED"),int(police_taille*1.3),(3*window_width/4,window_height/2))
     draw.rect(screen,couleur_param,[0,window_height/5+window_height/40-window_height/50,window_width/2, police_taille*1.3])
     if is_float(lines2[1]) and is_float(lines2[2]) and is_float(lines2[3]):
         S_max = float(lines2[1]) - float(lines2[2]) + float(lines2[3]) 
+    else : S_max = "non défini"
     ecriture("Rayon de la sphère :",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5 + window_height/40))
     ecriture("(S max = "+str(S_max)+")",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
+    bouton_gcode((0,0))
 
 def bouton_xy(pos):
     #Ajout pour les boutons
@@ -1339,7 +1344,8 @@ def ecrit3D(num_champ):
     # Rendre et afficher chaque ligne de texte
     txt_surf = police.render(lines2[num_champ], True, couleur("BLACK"))
     screen.blit(txt_surf, (indent_x, indent_y + num_champ*espace))
-    draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5-9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
+    print("curseur paint 2")
+    draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
     curseur3D(num_champ)
     ecriture("%",couleur("BLACK"),police_taille,(indent_x + 11.5*taille_carac, (num_champ)*espace+current_line1_y+window_height/30))
     display.update()
@@ -1396,6 +1402,47 @@ def curseur3D(num_champ):
 
     else : 
         draw.rect(screen,couleur_curseur,[pos_x - width/2,pos_y,width,2],0)
+
+def bouge_curseur3D(coord,dragging):
+    '''
+    entrée : 
+        les coordonnées de la souris, 
+        dragging = le numéro du champ dont le curseur est associé
+    effet : 
+        met à jour la position du curseur et met à jour le champ
+        met à jour 2 curseurs si d = r est enclenché
+    '''
+
+    # set les variables dont j'ai besoin
+    global lines2, cursor_position,numéro
+    num_curseur = dragging # numéro du curseur qu'on change
+    espace = window_height/5 # espace vertical entre les curseurs
+    coord_x, _ = coord # coordonnées du clic
+    pos_x = window_width/4 # centre du curseur
+    width_champ = window_width / 4 # taille du champ
+    width = width_champ * (2/3) # taille du curseur
+
+    if coord_x < pos_x - width/2:
+        pos_curseur_x = pos_x - width/2
+    elif coord_x > pos_x + width/2 :
+        pos_curseur_x = pos_x + width/2
+    else :
+        pos_curseur_x = coord_x
+
+    # mise à jour de la valeur du champ : 
+    param = int(((pos_curseur_x-pos_x+width/2))/width * 100)
+    if param > 100 :
+        param = 100
+    if param < 0:
+        param = 0
+    lines2[num_curseur] = str(param)
+
+    cursor_position = len(lines2[current_line])
+    modifie_rayons3D(lines2,numéro)
+
+    ecrit3D(num_curseur)
+    curseur3D(num_curseur)
+
 
 def rendu3D(r1,r2,p,couleur_rendu,numéro, Rsphere):
     '''
@@ -2197,7 +2244,7 @@ while run :
                                     ecrit3D(current_line)
                                 if pyEvent.type == MOUSEMOTION :
                                     return_arrow(pyEvent.pos)
-                                    bouton_gcode(Pyevent.pos)
+                                    bouton_gcode(pyEvent.pos)
                             display.flip() #mettre à jour l'affichage
                         print(run_g_code)
                         if run_g_code: 
@@ -2224,6 +2271,12 @@ while run :
                                     input_to_text_g_code(Pyevent)
                                     menu_g_code_init(lines3)
                             display.flip()
+                    # Relâchement du clic
+                    if pyEvent.type == MOUSEBUTTONUP:
+                        dragging = -1  # On arrête de déplacer l'objet
+                    if pyEvent.type == MOUSEMOTION and dragging >= 0:
+                        bouge_curseur3D(pyEvent.pos,dragging)
+                    display.flip() #mettre à jour l'affichage
 
                     if pyEvent.type == KEYDOWN:
                         input_to_text3D(pyEvent,numéro)  # Appel à la fonction pour gérer l'input
