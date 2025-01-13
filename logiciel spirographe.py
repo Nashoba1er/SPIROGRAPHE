@@ -2,14 +2,22 @@ from pygame import init, draw, font, K_BACKSPACE, key, K_RETURN, K_DOWN, K_UP, K
 from pygame import K_TAB, K_LSHIFT, K_RSHIFT, display, event, QUIT, MOUSEBUTTONDOWN, MOUSEMOTION, MOUSEBUTTONUP, K_ESCAPE, transform, surfarray
 from numpy import linspace, cos, sin, sqrt, all
 from tkinter import filedialog, Tk
-from os import path, startfile
+from os import path, startfile, makedirs
 from webbrowser import open as webopen
 from json import dump, load
+import sys
 
 script_dir = path.dirname(__file__)  # Dossier où se trouve le script
 img_path_github = path.join(script_dir, "ressources", "github.png")  # Sous-dossier "img"
 # Charger et redimensionner l'image
 logo_github = image.load(img_path_github)  # Charger l'image
+
+# Définir le chemin du dossier et du fichier
+dossier = "données"
+fichier_json = path.join(dossier, "data.json")
+
+# Créer le dossier s'il n'existe pas
+makedirs(dossier, exist_ok=True)
 
 # couleurs
 
@@ -210,7 +218,7 @@ def ecritures_param():
     '''
     effet : afficher les écritures de la page du spinographe en 2D
     '''
-    if couleur_param == couleur("BLACK"):
+    if couleur_param == couleur("BLACK") or couleur_param == couleur("VIOLET_FONCE") or couleur_param == couleur("BLEU_FONCE") :
         couleur_texte = couleur("WHITE")
     else :
         couleur_texte = couleur("BLACK")
@@ -1061,7 +1069,7 @@ def menu_cdc3D(numéro):
     taille_carac = 3/5*police_taille
     screen.fill(couleur_fond)
 
-    if couleur_param == couleur("BLACK"):
+    if couleur_param == couleur("BLACK") or couleur_param == couleur("VIOLET_FONCE") or couleur_param == couleur("BLEU_FONCE") :
         couleur_texte = couleur("WHITE")
     else :
         couleur_texte = couleur("BLACK")
@@ -1087,7 +1095,7 @@ def menu_cdc3D(numéro):
     for i in range(4):
         ecrit3D(i)
         if i != current_line:
-            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5-9*window_height/32,2,0.7*window_height/15],0)
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32,2,0.7*window_height/15],0)
     ecrit3D(current_line)
     curseurs_init3D()
 
@@ -1228,7 +1236,7 @@ def input_to_text3D(event,numéro):
             cursor_position = len(lines2[current_line])
             modifie_rayons3D(lines2,numéro)
     elif event.key == K_DOWN :
-        if is_float(lines2[current_line]) and int(float(lines[current_line])) > 0:
+        if is_float(lines2[current_line]) and int(float(lines2[current_line])) > 0:
             lines2[current_line] = str(int(float(lines2[current_line])) - 1)
             cursor_position = len(lines2[current_line])
             modifie_rayons3D(lines2,numéro)
@@ -1544,7 +1552,7 @@ def menu_param_et_info():
         - affiche des boutons indiquant les couleurs pour le rendu
     '''
     screen.fill(couleur_param)
-    if couleur_param == couleur("BLACK"):
+    if couleur_param == couleur("BLACK") or couleur_param == couleur("VIOLET_FONCE") or couleur_param == couleur("BLEU_FONCE") :
         couleur_texte = couleur("WHITE")
     else :
         couleur_texte = couleur("BLACK")
@@ -1774,6 +1782,7 @@ def clic_g_code(pos):
     if bouton_sauvegarde(pos):
         gcode_name, gcode = write_gcode (theta_max, N, petit_r, grand_r, p, Rsphere, nb_couches, ep_couches)
         run_g_code = False
+        current_line = 0
         chemin_fichier = sauvegarde_fichier_gcode(gcode_name, gcode)
         if chemin_fichier:
             print(f"Fichier enregistré à : {chemin_fichier}")
@@ -1784,12 +1793,14 @@ def clic_g_code(pos):
             menu_cdc3D(numéro)
     elif bouton_annulation(pos):
         run_g_code = False
+        current_line = 0
         if run_cdc : 
             menu_cercle_dans_cercle_init(lines)
         if run_cdc3D :
             menu_cdc3D(numéro)
     elif return_arrow(pos):
         run_g_code = False
+        current_line = 0
         if run_cdc : 
             menu_cercle_dans_cercle_init(lines)
         if run_cdc3D :
@@ -1970,33 +1981,37 @@ def bouton_annulation(pos):
     return res
 
 def menu_g_code_init(lines3):
-    screen.fill((0, 0, 0))  # Fond noir
+    screen.fill(couleur_param)
     i = 1
-    ecriture("Vous vous appretez à sauvegarder un fichier gcode" , (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
-    ecriture("généré selon les paramètres suivants" , (255,255,255), police_taille_infos, (window_width/2, (2*i+1)*window_height/24))
+    if couleur_param == couleur("BLACK") or couleur_param == couleur("VIOLET_FONCE") or couleur_param == couleur("BLEU_FONCE") :
+        couleur_ecriture = couleur("WHITE")
+    else :
+        couleur_ecriture = couleur("BLACK")
+    ecriture("Vous vous appretez à sauvegarder un fichier gcode" , couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("généré selon les paramètres suivants" , couleur_ecriture, police_taille_infos, (window_width/2, (2*i+1)*window_height/24))
     i = i+1.5
-    ecriture("angle de rotation variant de 0 à " + str(int(theta_max)) + " rad", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("angle de rotation variant de 0 à " + str(int(theta_max)) + " rad", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
     if N<=1 :
-        ecriture("Motif de " + str(N) + " point", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+        ecriture("Motif de " + str(N) + " point", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     elif N>1 :
-        ecriture("Motif de " + str(N) + " points", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+        ecriture("Motif de " + str(N) + " points", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
     if nb_couches == 1 :
-        ecriture("une couche d'epaisseur " + str(ep_couches) + " mm", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+        ecriture("une couche d'epaisseur " + str(ep_couches) + " mm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     elif (nb_couches >= 2) :
-        ecriture(str(nb_couches) + " couches d'epaisseur " + str(ep_couches) + " mm", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+        ecriture(str(nb_couches) + " couches d'epaisseur " + str(ep_couches) + " mm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
-    ecriture("rayon du grand cercle égal à " + str(float(grand_r)/10) + " cm", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("rayon du grand cercle égal à " + str(float(grand_r)/10) + " cm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
-    ecriture("rayon du petit cercle égal à " + str(float(petit_r)/10) + " cm", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("rayon du petit cercle égal à " + str(float(petit_r)/10) + " cm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
-    ecriture("stylo posé à " + str(float(p)/10) + " cm du centre du petit cercle", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("stylo posé à " + str(float(p)/10) + " cm du centre du petit cercle", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
     if Rsphere == 0 :
-        ecriture("à plat", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+        ecriture("à plat", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     elif (Rsphere >= (grand_r-petit_r+p)) :
-        ecriture("motif posé sur une sphere de rayon " + str(float(Rsphere)/10) + " cm", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+        ecriture("motif posé sur une sphere de rayon " + str(float(Rsphere)/10) + " cm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
 
     bouton_sauvegarde ((0, 0))
     bouton_annulation ((0, 0))
@@ -2075,12 +2090,9 @@ couleur_g_cercle = couleur("RED")
 couleur_p_cercle = couleur("BLEU_FONCE")
 
 # Set les couleurs et valeurs rempli lors de la dernière utilisation
-# Construire le chemin vers le fichier JSON
-current_dir = path.dirname(__file__)  # Répertoire actuel du script
-file_path = path.join(current_dir, "data.json")
 
 try:
-  with open(file_path, "r") as file:
+  with open(fichier_json, "r") as file:
       data = load(file)
       
       #on récupère les données
@@ -2137,7 +2149,7 @@ while run :
             clic_menu(pyEvent.pos)
             if run_cdc : 
                 menu_cercle_dans_cercle_init(lines)
-                
+                current_line = 0
             while run_cdc : 
                 for pyEvent in event.get():
                     if pyEvent.type == QUIT:
@@ -2338,9 +2350,12 @@ data = {
     "cursor_position" : str(cursor_position)
     }
 
-with open(file_path, "w") as file:
-    dump(data, file)
 
+# Écrire les données dans le fichier JSON
+with open(fichier_json, "w") as file:
+    dump(data, file, indent=4, ensure_ascii=False)
+
+print(f"Fichier JSON créé à : {fichier_json}")
 
 quit()
 
