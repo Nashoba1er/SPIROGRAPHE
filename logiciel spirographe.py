@@ -1,15 +1,23 @@
 from pygame import init, draw, font, K_BACKSPACE, key, K_RETURN, K_DOWN, K_UP, KEYDOWN, K_LEFT, K_RIGHT, KEYUP, time, image
 from pygame import K_TAB, K_LSHIFT, K_RSHIFT, display, event, QUIT, MOUSEBUTTONDOWN, MOUSEMOTION, MOUSEBUTTONUP, K_ESCAPE, transform, surfarray
-from numpy import linspace, cos, sin, sqrt, all
+from numpy import linspace, cos, sin, sqrt, all, pi
 from tkinter import filedialog, Tk
-from os import path, startfile
+from os import path, startfile, makedirs
 from webbrowser import open as webopen
 from json import dump, load
+import sys
 
 script_dir = path.dirname(__file__)  # Dossier où se trouve le script
 img_path_github = path.join(script_dir, "ressources", "github.png")  # Sous-dossier "img"
 # Charger et redimensionner l'image
 logo_github = image.load(img_path_github)  # Charger l'image
+
+# Définir le chemin du dossier et du fichier
+dossier = "données"
+fichier_json = path.join(dossier, "data.json")
+
+# Créer le dossier s'il n'existe pas
+makedirs(dossier, exist_ok=True)
 
 # couleurs
 
@@ -210,7 +218,7 @@ def ecritures_param():
     '''
     effet : afficher les écritures de la page du spinographe en 2D
     '''
-    if couleur_param == couleur("BLACK"):
+    if couleur_param == couleur("BLACK") or couleur_param == couleur("VIOLET_FONCE") or couleur_param == couleur("BLEU_FONCE") :
         couleur_texte = couleur("WHITE")
     else :
         couleur_texte = couleur("BLACK")
@@ -251,7 +259,7 @@ def bouton_gcode(pos):
         ecriture(message,couleur("WHITE"),police_taille,(pos_x,pos_y))
     return res
 
-def points (theta_max, N, petit_r, grand_r, p) :
+def points(nb_tour, N, petit_r, grand_r, p) :
     '''
     entrée :
         theta_max : la valeur de théta max
@@ -263,18 +271,16 @@ def points (theta_max, N, petit_r, grand_r, p) :
         calcule les N points du rendu
     Sortie : renvoie les N points du rendu
     '''
-    theta = linspace(0.0, theta_max, N)
+    theta = linspace(0.0, nb_tour, N)
     diff_r = grand_r - petit_r
     q = 1.0 - (grand_r/petit_r) #arrangez vous pour que ce rapport soit différent de 1/2
-    x = []
-    y = []
+    res = []
     for i in range ( N ) :
-        new_x = diff_r*cos(theta[i]) + p * cos(q*theta[i])
-        new_y = diff_r*sin(theta[i]) + p * sin(q*theta[i])
-        x.append(new_x)
-        y.append(new_y)
+        new_x = diff_r*cos(theta[i]/(2*pi)) + p * cos(q*theta[i]/(2*pi))
+        new_y = diff_r*sin(theta[i]/(2*pi)) + p * sin(q*theta[i]/(2*pi))
+        res.append((new_x,new_y,0))
 
-    return x, y
+    return res
 
 def rendu(r1,r2,p,couleur_rendu):
     '''
@@ -289,9 +295,10 @@ def rendu(r1,r2,p,couleur_rendu):
     centre_x, centre_y = 3*window_width/4,3*window_height/4
     if not (r1 > window_height/4 or r2 >= r1 or p > r2) : 
         #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
-        point_x, point_y = points(6000.0, 10000, r1, r2, p)
-        for i in range(10000):
-            draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),1)
+        pointss = points(6000.0, 10000, r1, r2, p)
+        for i,point in enumerate(pointss):
+            point_x, point_y, _ = point
+            draw.circle(screen,couleur_rendu,(centre_x+point_x,centre_y+point_y),1)
     bouton_gcode((0,0))
 
 def menu_cercle_dans_cercle_init(lines):
@@ -354,9 +361,10 @@ def zoom_rendu(lines):
     if not (r1 > window_height/2 or r2 >= r1 or p > r2) : 
         screen.fill(couleur_fond)
         #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
-        point_x, point_y = points(12000.0, 75000, r1, r2, p)
-        for i in range(75000):
-            draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),1)
+        pointss = points(12000.0, 75000, r1, r2, p)
+        for i,point in enumerate(pointss):
+            point_x, point_y, _ = point
+            draw.circle(screen,couleur_rendu,(centre_x+point_x,centre_y+point_y),1)
     else :
         run_zoom_rendu = False
     return_arrow((0,0))
@@ -782,9 +790,10 @@ def menu_choix():
     p = 25*(window_height/2)/100
     centre_x, centre_y = window_width/2,window_height/2
     screen.fill(couleur_fond)
-    point_x, point_y = points(6000.0, 10000, r1, r2, p)
-    for i in range(10000):
-        draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),2)
+    pointss = points(6000.0, 10000, r1, r2, p)
+    for i,point in enumerate(pointss):
+        point_x, point_y, _ = point
+        draw.circle(screen,couleur_rendu,(centre_x+point_x,centre_y+point_y),2)
 
     ecriture("SPIROGRAPHE",couleur_rendu,police_taille*2, (window_width/2,window_height/8))
     #affiche les boutons sans les considérer commme sélectionné
@@ -1061,7 +1070,7 @@ def menu_cdc3D(numéro):
     taille_carac = 3/5*police_taille
     screen.fill(couleur_fond)
 
-    if couleur_param == couleur("BLACK"):
+    if couleur_param == couleur("BLACK") or couleur_param == couleur("VIOLET_FONCE") or couleur_param == couleur("BLEU_FONCE") :
         couleur_texte = couleur("WHITE")
     else :
         couleur_texte = couleur("BLACK")
@@ -1087,7 +1096,7 @@ def menu_cdc3D(numéro):
     for i in range(4):
         ecrit3D(i)
         if i != current_line:
-            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5-9*window_height/32,2,0.7*window_height/15],0)
+            draw.rect(screen,couleur("WHITE"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32,2,0.7*window_height/15],0)
     ecrit3D(current_line)
     curseurs_init3D()
 
@@ -1133,7 +1142,6 @@ def clic_cdc3D(coord, numéro):
             for carac in range(len(lines2[current_line])):
                 if (coord_x < current_line_x + (len(lines2[current_line])-carac)*taille_carac) :
                     cursor_position = len(lines2[current_line])-carac - 1
-            print("curseur paint 1")
             draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,taille_curseur],0)
             
         # Vérifie si le clic est sur un curseur
@@ -1229,7 +1237,7 @@ def input_to_text3D(event,numéro):
             cursor_position = len(lines2[current_line])
             modifie_rayons3D(lines2,numéro)
     elif event.key == K_DOWN :
-        if is_float(lines2[current_line]) and int(float(lines[current_line])) > 0:
+        if is_float(lines2[current_line]) and int(float(lines2[current_line])) > 0:
             lines2[current_line] = str(int(float(lines2[current_line])) - 1)
             cursor_position = len(lines2[current_line])
             modifie_rayons3D(lines2,numéro)
@@ -1344,7 +1352,6 @@ def ecrit3D(num_champ):
     # Rendre et afficher chaque ligne de texte
     txt_surf = police.render(lines2[num_champ], True, couleur("BLACK"))
     screen.blit(txt_surf, (indent_x, indent_y + num_champ*espace))
-    print("curseur paint 2")
     draw.rect(screen,couleur("BLACK"),[window_width/8 + cursor_position * taille_carac + taille_carac/4,(current_line)*window_height/5+9*window_height/32 + 0.15*window_height/15,2,0.7*window_height/15],0)
     curseur3D(num_champ)
     ecriture("%",couleur("BLACK"),police_taille,(indent_x + 11.5*taille_carac, (num_champ)*espace+current_line1_y+window_height/30))
@@ -1457,10 +1464,11 @@ def rendu3D(r1,r2,p,couleur_rendu,numéro, Rsphere):
     centre_x, centre_y = 3*window_width/4,window_height/2
     if not (r1 > window_height/4 or r2 >= r1 or p > r2) : 
         #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
-        point_x, point_y, point_z = points3D(6000.0, 10000, r1, r2, p, Rsphere)
+        pointss = points3D(6000.0, 10000, r1, r2, p, Rsphere)
         if numéro == 1:
-            for i in range(10000):
-                draw.circle(screen,couleur_rendu,(centre_x+1.7*point_x[i],centre_y + window_height/10+1.7*point_y[i]),1)
+            for i,point in enumerate(pointss):
+                point_x, point_y, point_z = point
+                draw.circle(screen,couleur_rendu,(centre_x+1.7*point_x,centre_y + window_height/10+1.7*point_y),1)
             draw.line(screen, couleur("RED"), (centre_x - window_width/5, centre_y+window_height/10), (centre_x + window_width/5, centre_y+window_height/10), 2)
             flèche_x = centre_x + window_width / 5
             flèche_y = centre_y + window_height / 10
@@ -1472,8 +1480,9 @@ def rendu3D(r1,r2,p,couleur_rendu,numéro, Rsphere):
             ecriture("x",couleur("RED"),police_taille,(centre_x + window_width / 5, centre_y + window_height / 7))
             ecriture("y",couleur("RED"),police_taille,(centre_x + window_width/20, centre_y - window_height / 4))
         if numéro == 2:
-            for i in range(10000):
-                draw.circle(screen,couleur_rendu,(centre_x+1.7*point_x[i],centre_y + window_height/5 +1.7*point_z[i]),1)
+            for i,point in enumerate(pointss):
+                point_x, point_y, point_z = point
+                draw.circle(screen,couleur_rendu,(centre_x+1.7*point_x,centre_y + window_height/5 +1.7*point_z),1)
             draw.line(screen, couleur("RED"), (centre_x - window_width/5, centre_y+window_height/10), (centre_x + window_width/5, centre_y+window_height/10), 2)
             flèche_x = centre_x + window_width / 5
             flèche_y = centre_y + window_height / 10
@@ -1506,36 +1515,35 @@ def zoom_rendu3D(lines2, numéro):
     if not (r1 > window_height/2 or r2 >= r1 or p > r2) : 
         screen.fill(couleur_fond)
         #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
-        point_x, point_y, point_z = points3D(12000.0, 75000, r1, r2, p, Rsphere)
+        pointss= points3D(12000.0, 75000, r1, r2, p, Rsphere)
         if numéro == 1:
-            for i in range(75000):
-                draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_y[i]),1)
+            for i,point in enumerate(pointss):
+                point_x, point_y, point_z = point
+                draw.circle(screen,couleur_rendu,(centre_x+point_x,centre_y+point_y),1)
         if numéro == 2:
-            for i in range(75000):
-                draw.circle(screen,couleur_rendu,(centre_x+point_x[i],centre_y+point_z[i]),1)
+            for i,point in enumerate(pointss):
+                point_x, point_y, point_z = point
+                draw.circle(screen,couleur_rendu,(centre_x+point_x,centre_y+point_z),1)
     else :
         run_zoom_rendu = False
     return_arrow((0,0))
 
-def points3D(theta_max, N, petit_r, grand_r, p,Rsphere) :
-    theta = linspace(0.0, theta_max, N)
+def points3D(nb_tour, N, petit_r, grand_r, p,Rsphere) :
+    theta = linspace(0.0, nb_tour, N)
     diff_r = grand_r - petit_r
     q = 1.0 - (grand_r/petit_r) #arrangez vous pour que ce rapport soit différent de 1/2
-    x = []
-    y = []
-    z = []
+    res = []
     for i in range ( N ) :
-        new_x = diff_r*cos(theta[i]) + p * cos(q*theta[i])
-        new_y = diff_r*sin(theta[i]) + p * sin(q*theta[i])
+        new_x = diff_r*cos(theta[i]/(2*pi)) + p * cos(q*theta[i]/(2*pi))
+        new_y = diff_r*sin(theta[i]/(2*pi)) + p * sin(q*theta[i]/(2*pi))
         if (grand_r - petit_r + p < float(Rsphere)):
             new_z = - sqrt(float(Rsphere)**2 - new_x**2 - new_y**2)
-        #else:
+        else :
+            new_z = 0
+        res.append((new_x,new_y,new_z))
+
             
-        x.append(new_x)
-        y.append(new_y)
-        z.append(new_z)
-    
-    return x, y, z
+    return res
 
 #fonctions pour le menu Infos et Paramètres
 
@@ -1546,7 +1554,7 @@ def menu_param_et_info():
         - affiche des boutons indiquant les couleurs pour le rendu
     '''
     screen.fill(couleur_param)
-    if couleur_param == couleur("BLACK"):
+    if couleur_param == couleur("BLACK") or couleur_param == couleur("VIOLET_FONCE") or couleur_param == couleur("BLEU_FONCE") :
         couleur_texte = couleur("WHITE")
     else :
         couleur_texte = couleur("BLACK")
@@ -1678,13 +1686,13 @@ def affiche_logo_github(res,image):
 
 #fonctions pour le menu G CODE :
 
-def points_3d (theta_max, N, petit_r, grand_r, p, Rsphere, nb_couches, ep_couches) :
+def points_3d (tour_max, N, petit_r, grand_r, p, Rsphere, nb_couches, ep_couches) :
     '''
     retourne la liste des points en 3D de coordonée z qui varie selon le rayon Rsphere si (grand_r-petit_r+p)<=Rpshere
     retourne la liste des points en 3D de coordonée z fixe égale à 0 si Rsphere = 0
     '''
   
-    theta = linspace(0.0, theta_max, N)
+    theta = linspace(0.0, tour_max, N)
     diff_r = grand_r - petit_r
     q = 1.0 - (grand_r/petit_r) #arrangez vous pour que ce rapport soit différent de 1/2
     max_dist = diff_r + p
@@ -1692,21 +1700,21 @@ def points_3d (theta_max, N, petit_r, grand_r, p, Rsphere, nb_couches, ep_couche
     for j in range (nb_couches) :
         if (Rsphere == 0) :
             for i in range (N) :
-                new_x = diff_r*cos(theta[i]) + p * cos(q*theta[i])
-                new_y = diff_r*sin(theta[i]) + p * sin(q*theta[i])
+                new_x = diff_r*cos(theta[i]/(2*pi)) + p * cos(q*theta[i]/(2*pi))
+                new_y = diff_r*sin(theta[i]/(2*pi)) + p * sin(q*theta[i]/(2*pi))
                 z = j*ep_couches
                 res.append((new_x, new_y, z))
         elif (max_dist<=Rsphere) :
             for i in range (N) :
-                new_x = diff_r*cos(theta[i]) + p * cos(q*theta[i])
-                new_y = diff_r*sin(theta[i]) + p * sin(q*theta[i])
+                new_x = diff_r*cos(theta[i]/(2*pi)) + p * cos(q*theta[i]/(2*pi))
+                new_y = diff_r*sin(theta[i]/(2*pi)) + p * sin(q*theta[i]/(2*pi))
                 z = sqrt(Rsphere*Rsphere - new_x*new_x - new_y*new_y) - sqrt (Rsphere*Rsphere - max_dist*max_dist) + j*ep_couches
                 res.append((new_x, new_y, z))
         else:
             ecriture("Rsphere trop petit",couleur("RED"),int(police_taille*1.3),(3*window_width/4,window_height/2))
     return res
 
-def generate_gcode_points(points, extrusion_rate=0.05, layer_height=0.2):
+def generate_gcode_points(points,vitesse, extrusion_rate=0.05, layer_height=0.2):
   #genere le gcode à partir d'une liste de points
     gcode = []
     gcode.append("; Début du fichier G-code")
@@ -1714,7 +1722,8 @@ def generate_gcode_points(points, extrusion_rate=0.05, layer_height=0.2):
     gcode.append("G90 ; Mode de positionnement absolu")
     gcode.append("G28 ; Aller à l'origine")
     gcode.append("G92 E0 ; Réinitialiser l'extrusion")
-    gcode.append("G1 Z0.2 F300 ; Début à la hauteur de couche initiale")
+    v = float(vitesse)
+    gcode.append(f"G1 Z0.2 F{v:.6f} ; Début à la hauteur de couche initiale")
     extrusion = 0
     for i, point in enumerate(points):
         x, y, z = point
@@ -1726,21 +1735,25 @@ def generate_gcode_points(points, extrusion_rate=0.05, layer_height=0.2):
                         (points[i][2] - points[i - 1][2]) ** 2) ** 0.5
             extrusion += distance * extrusion_rate
             gcode.append(f"G1 X{x:.6f} Y{y:.6f} Z{z:.6f} E{extrusion:.4f}")
-    gcode.append("G1 E-1 F300 ; Rétractation")
+    gcode.append(f"G1 E-1 F{v:.6f} ; Rétractation")
     gcode.append("G28 ; Retour à l'origine")
     gcode.append("M104 S0 ; Arrêt de l'extrudeur")
     gcode.append("M140 S0 ; Arrêt du plateau")
     gcode.append("; Fin du fichier G-code")
     return "\n".join(gcode)
 
-def write_gcode (theta_max, N, petit_r, grand_r, p, Rsphere, nb_couches, ep_couches) :
-  points = points_3d (theta_max, N, petit_r, grand_r, p, Rsphere, nb_couches, ep_couches)
-  gcode = generate_gcode_points (points)
-  if (Rsphere>=(grand_r - petit_r + p)) :
-    gcode_name = f"{theta_max:.0f}_{N}_{petit_r:.0f}_{grand_r:.0f}_{p:.0f}_{Rsphere:.0f}_{nb_couches}_{1000*ep_couches:.0f}.gcode"
-  elif (Rsphere==0) :
-    gcode_name = f"{theta_max:.0f}_{N}_{petit_r:.0f}_{grand_r:.0f}_{p:.0f}_a_plat_{nb_couches}_{1000*ep_couches:.0f}.gcode"
-  return gcode_name, gcode
+def write_gcode (nb_tours, N, petit_r, grand_r, p, Rsphere, nb_couches, ep_couches) :
+    if run_cdc:
+        pointss = points(nb_tours,N, petit_r, grand_r, p)
+    else :
+        pointss = points3D(nb_tours,N, petit_r, grand_r, p, Rsphere)
+    gcode = generate_gcode_points (pointss,int(lines3[0]))
+    vitesse = float(lines3[0])
+    if (Rsphere>=(grand_r - petit_r + p)) :
+        gcode_name = f"{vitesse:.0f}_{N}_{petit_r:.0f}_{grand_r:.0f}_{p:.0f}_{Rsphere:.0f}_{nb_couches}_{1000*ep_couches:.0f}.gcode"
+    elif (Rsphere==0) :
+        gcode_name = f"{vitesse:.0f}_{N}_{petit_r:.0f}_{grand_r:.0f}_{p:.0f}_a_plat_{nb_couches}_{1000*ep_couches:.0f}.gcode"
+    return gcode_name, gcode
 
 def sauvegarde_fichier_gcode(name, content):
     root = Tk()
@@ -1774,8 +1787,10 @@ def clic_g_code(pos):
     width = window_width/8
     taille_carac = 3*police_taille_valeurs_champs/5
     if bouton_sauvegarde(pos):
+        modifie_valeurs(lines3)
         gcode_name, gcode = write_gcode (theta_max, N, petit_r, grand_r, p, Rsphere, nb_couches, ep_couches)
         run_g_code = False
+        current_line = 0
         chemin_fichier = sauvegarde_fichier_gcode(gcode_name, gcode)
         if chemin_fichier:
             print(f"Fichier enregistré à : {chemin_fichier}")
@@ -1786,12 +1801,14 @@ def clic_g_code(pos):
             menu_cdc3D(numéro)
     elif bouton_annulation(pos):
         run_g_code = False
+        current_line = 0
         if run_cdc : 
             menu_cercle_dans_cercle_init(lines)
         if run_cdc3D :
             menu_cdc3D(numéro)
     elif return_arrow(pos):
         run_g_code = False
+        current_line = 0
         if run_cdc : 
             menu_cercle_dans_cercle_init(lines)
         if run_cdc3D :
@@ -1821,7 +1838,7 @@ def champ_gcode(num_champ):
     y_champ = 25*window_height/32
     y_texte = 49*window_height/64
     if num_champ == 0 :
-        ecriture ("theta_max (rad)", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
+        ecriture ("vitesse", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
     if num_champ == 1 :
         ecriture ("nb_points", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
     if num_champ == 2 :
@@ -1829,7 +1846,7 @@ def champ_gcode(num_champ):
     if num_champ == 3 :
         ecriture ("epaisseur (micrometres)", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
     if num_champ == 4 :
-        ecriture ("rayon grand cercle (mm)", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
+        ecriture ("rayon grand cercle (cm)", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
     draw.rect(screen,couleur("WHITE"),[x_champ,y_champ,width,height])
     draw.rect(screen,couleur("BLACK"),[x_champ,y_champ,width,height],6)
     draw.rect(screen,couleur("WHITE"),[x_champ,y_champ,width,height],2)
@@ -1905,7 +1922,7 @@ def ecrit_champ_gcode(num_champ):
 
 def modifie_valeurs(lines3):
     global theta_max, N, grand_r, petit_r, Rsphere, nb_couches, ep_couches, p
-    theta_max = float(lines3[0])
+    theta_max = 10000
     N = int(lines3[1])
     nb_couches = int(lines3[2])
     ep_couches = float(lines3[3])/1000
@@ -1972,33 +1989,37 @@ def bouton_annulation(pos):
     return res
 
 def menu_g_code_init(lines3):
-    screen.fill((0, 0, 0))  # Fond noir
+    screen.fill(couleur_param)
     i = 1
-    ecriture("Vous vous appretez à sauvegarder un fichier gcode" , (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
-    ecriture("généré selon les paramètres suivants" , (255,255,255), police_taille_infos, (window_width/2, (2*i+1)*window_height/24))
+    if couleur_param == couleur("BLACK") or couleur_param == couleur("VIOLET_FONCE") or couleur_param == couleur("BLEU_FONCE") :
+        couleur_ecriture = couleur("WHITE")
+    else :
+        couleur_ecriture = couleur("BLACK")
+    ecriture("Vous vous appretez à sauvegarder un fichier gcode" , couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("généré selon les paramètres suivants" , couleur_ecriture, police_taille_infos, (window_width/2, (2*i+1)*window_height/24))
     i = i+1.5
-    ecriture("angle de rotation variant de 0 à " + str(int(theta_max)) + " rad", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("vitesse de " + str(int(lines3[0])), couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
     if N<=1 :
-        ecriture("Motif de " + str(N) + " point", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+        ecriture("Motif de " + str(N) + " point", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     elif N>1 :
-        ecriture("Motif de " + str(N) + " points", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+        ecriture("Motif de " + str(N) + " points", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
     if nb_couches == 1 :
-        ecriture("une couche d'epaisseur " + str(ep_couches) + " mm", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+        ecriture("une couche d'epaisseur " + str(ep_couches) + " mm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     elif (nb_couches >= 2) :
-        ecriture(str(nb_couches) + " couches d'epaisseur " + str(ep_couches) + " mm", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+        ecriture(str(nb_couches) + " couches d'epaisseur " + str(ep_couches) + " mm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
-    ecriture("rayon du grand cercle égal à " + str(float(grand_r)/10) + " cm", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("rayon du grand cercle égal à " + str(float(grand_r)) + " cm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
-    ecriture("rayon du petit cercle égal à " + str(float(petit_r)/10) + " cm", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("rayon du petit cercle égal à " + str(float(petit_r)) + " cm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
-    ecriture("stylo posé à " + str(float(p)/10) + " cm du centre du petit cercle", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("stylo posé à " + str(float(p)/10) + " cm du centre du petit cercle", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
     if Rsphere == 0 :
-        ecriture("à plat", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+        ecriture("à plat", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     elif (Rsphere >= (grand_r-petit_r+p)) :
-        ecriture("motif posé sur une sphere de rayon " + str(float(Rsphere)/10) + " cm", (255,255,255), police_taille_infos, (window_width/2, i*window_height/12))
+        ecriture("motif posé sur une sphere de rayon " + str(float(Rsphere)) + " cm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
 
     bouton_sauvegarde ((0, 0))
     bouton_annulation ((0, 0))
@@ -2057,15 +2078,16 @@ police_taille_valeurs_champs = int(window_height/22)
 police_taille_infos = int(window_height/36)
 
 # variables globales G CODE
-theta_max = 6000.0
+theta_max = 10000
+vitesse = 600
 N = 100000
-petit_r = 39
+petit_r = 40
 grand_r = 100
-p = 35
+p = 40
 Rsphere = 175
 nb_couches = 4
 ep_couches = 1
-lines3 = [str(int(theta_max)), str(N), str(nb_couches), str(1000*ep_couches), str(grand_r)]
+lines3 = [str(int(vitesse)), str(N), str(nb_couches), str(1000*ep_couches), str(grand_r)]
 rapport_rsphere = float(Rsphere)/float(grand_r)
 rapport_petit_r = float(petit_r)/float(grand_r)
 rapport_p = float(p)/float(grand_r)
@@ -2077,14 +2099,10 @@ couleur_g_cercle = couleur("RED")
 couleur_p_cercle = couleur("BLEU_FONCE")
 
 # Set les couleurs et valeurs rempli lors de la dernière utilisation
-# Construire le chemin vers le fichier JSON
-current_dir = path.dirname(__file__)  # Répertoire actuel du script
-file_path = path.join(current_dir, "ressources", "data.json")
+
 try:
-  with open(file_path, "r") as file:
+  with open(fichier_json, "r") as file:
       data = load(file)
-      print("data trouvé !")
-      print(data)
       
       #on récupère les données
       couleur_param_str = data.get("couleur_param", "(255,255,255)")  # Valeur par défaut 0 si "x" n'existe pas
@@ -2140,7 +2158,7 @@ while run :
             clic_menu(pyEvent.pos)
             if run_cdc : 
                 menu_cercle_dans_cercle_init(lines)
-                
+                current_line = 0
             while run_cdc : 
                 for pyEvent in event.get():
                     if pyEvent.type == QUIT:
@@ -2177,7 +2195,7 @@ while run :
                                     return_arrow(pyEvent.pos)
                             display.flip() #mettre à jour l'affichage
                         if run_g_code: 
-                            lines3 = [str(int(theta_max)), str(N), str(nb_couches), str(1000*ep_couches), str(lines[0])]
+                            lines3 = [str(int(vitesse)), str(N), str(nb_couches), str(1000*ep_couches), str(lines[0])]
                             rapport_rsphere = 0 # float(Rsphere)/float(grand_r)
                             rapport_petit_r = float(lines[1])/float(lines[0])
                             rapport_p = float(lines[2])/float(lines[0])
@@ -2246,9 +2264,8 @@ while run :
                                     return_arrow(pyEvent.pos)
                                     bouton_gcode(pyEvent.pos)
                             display.flip() #mettre à jour l'affichage
-                        print(run_g_code)
                         if run_g_code: 
-                            lines3 = [str(int(theta_max)), str(N), str(nb_couches), str(1000*ep_couches), str(lines2[1])]
+                            lines3 = [str(int(vitesse)), str(N), str(nb_couches), str(1000*ep_couches), str(lines2[1])]
                             rapport_rsphere = float(lines2[0])/float(lines2[1])
                             rapport_petit_r = float(lines2[2])/float(lines2[1])
                             rapport_p = float(lines2[3])/float(lines2[1])
@@ -2342,12 +2359,10 @@ data = {
     "cursor_position" : str(cursor_position)
     }
 
-with open(file_path, "w") as file:
-    dump(data, file)
 
-print("après modif :")
-
-print(data)
+# Écrire les données dans le fichier JSON
+with open(fichier_json, "w") as file:
+    dump(data, file, indent=4, ensure_ascii=False)
 
 quit()
 
