@@ -271,7 +271,7 @@ def points(nb_tour, N, petit_r, grand_r, p) :
         calcule les N points du rendu
     Sortie : renvoie les N points du rendu
     '''
-    theta = linspace(0.0, nb_tour, N)
+    theta = linspace(0.0, nb_tour*40, N)
     diff_r = grand_r - petit_r
     q = 1.0 - (grand_r/petit_r) #arrangez vous pour que ce rapport soit différent de 1/2
     res = []
@@ -282,7 +282,7 @@ def points(nb_tour, N, petit_r, grand_r, p) :
 
     return res
 
-def rendu(r1,r2,p,couleur_rendu):
+def rendu(grand_r,petit_r,p,couleur_rendu):
     '''
     entrée :
         r1 : rayon du grand cercle
@@ -293,14 +293,17 @@ def rendu(r1,r2,p,couleur_rendu):
         affiche le rendu et le bouton_gcode
     '''
     centre_x, centre_y = 3*window_width/4,3*window_height/4
-    if not (r1 > window_height/4 or r2 >= r1 or p > r2) : 
+    if not (grand_r > window_height/4 or petit_r >= grand_r or p > petit_r) : 
         #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
-        pointss = points(6000.0, 10000, r1, r2, p)
+        if multiverse : 
+            pointss = points(int(lines_nb_tour), 10000, grand_r, petit_r, p)      
+        else :
+            pointss = points(int(lines_nb_tour), 10000, petit_r, grand_r, p)
         for i,point in enumerate(pointss):
             point_x, point_y, _ = point
             draw.circle(screen,couleur_rendu,(centre_x+point_x,centre_y+point_y),1)
     bouton_gcode((0,0))
-
+    
 def menu_cercle_dans_cercle_init(lines):
     '''
     entrée :
@@ -345,8 +348,8 @@ def zoom_schema(lines):
 def zoom_rendu(lines):
     '''
     entrée :
-        r1 : rayon du grand cercle
-        r2 : rayon du petit cercle
+        grand_r : rayon du grand cercle
+        petit_r : rayon du petit cercle
         p : distance entre le centre du petit cercle et le point P
         couleur_rendu : la couleur du rendu
     effet :
@@ -354,14 +357,18 @@ def zoom_rendu(lines):
     '''
     global run_zoom_rendu,couleur_g_cercle,couleur_p_cercle,couleur_fond
     if is_float(lines[0]) and is_float(lines[1]) and is_float(lines[2]):
-        r1 = float(lines[0])*(window_height/2)/100
-        r2 = float(lines[1])*(window_height/2)/100
+        grand_r = float(lines[0])*(window_height/2)/100
+        petit_r = float(lines[1])*(window_height/2)/100
         p = float(lines[2])*(window_height/2)/100
     centre_x, centre_y = window_width/2,window_height/2
-    if not (r1 > window_height/2 or r2 >= r1 or p > r2) : 
+    if not (grand_r > window_height/2 or petit_r >= grand_r or p > petit_r) : 
         screen.fill(couleur_fond)
-        #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
-        pointss = points(12000.0, 75000, r1, r2, p)
+        #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),grand_r,1)
+        if multiverse :
+            pointss = points(int(lines_nb_tour), 75000, grand_r,petit_r, p)
+        else :
+            pointss = points(int(lines_nb_tour), 75000, petit_r, grand_r, p)
+
         for i,point in enumerate(pointss):
             point_x, point_y, _ = point
             draw.circle(screen,couleur_rendu,(centre_x+point_x,centre_y+point_y),1)
@@ -684,6 +691,19 @@ def is_float(value):
         return True
     except ValueError:
         return False
+    
+def is_int(value):
+    '''
+    entrée :
+        value : variable quelconque
+    effet :
+        vérifie que cette valeur est un int
+    '''
+    try:
+        int(value)
+        return True
+    except ValueError:
+        return False
 
 def modifie_rayons(lines):
     '''
@@ -790,7 +810,10 @@ def menu_choix():
     p = 25*(window_height/2)/100
     centre_x, centre_y = window_width/2,window_height/2
     screen.fill(couleur_fond)
-    pointss = points(6000.0, 10000, r1, r2, p)
+    if multiverse : 
+        pointss = points(int(lines_nb_tour), 10000, r1, r2, p)
+    else :
+        pointss = points(int(lines_nb_tour), 10000, r2, r1, p)
     for i,point in enumerate(pointss):
         point_x, point_y, _ = point
         draw.circle(screen,couleur_rendu,(centre_x+point_x,centre_y+point_y),2)
@@ -889,7 +912,7 @@ def bouton_couleur(pos):
         ecriture(message,couleur("WHITE"),police_taille,(pos_x,pos_y))
     return res
 
-def bouton_ede(pos):
+def bouton_multiverse(pos):
     '''
     entrée :
         pos = (x,y) : la position du curseur
@@ -901,7 +924,7 @@ def bouton_ede(pos):
         renvoie True si le curseur est sur le bouton, False sinon
     '''
     res = False
-    message = "Ellipse"
+    message = "Multiverse"
     (cursor_x, cursor_y) = pos
     width = police_taille*3/5*(len(message)+1)
     height = police_taille
@@ -909,14 +932,19 @@ def bouton_ede(pos):
     pos_y = 8*window_height/10
     draw.rect(screen,couleur("BLACK"),[pos_x-(width/2),pos_y-(height/2),width,height],0,20)
     if cursor_x < pos_x+(width/2) and cursor_x > pos_x-(width/2) and cursor_y < pos_y+(height/2) and cursor_y > pos_y-(height/2):
+        res = True
+    
+    if res and not multiverse:
         draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
         ecriture(message,couleur("GREEN"),police_taille,(pos_x,pos_y))
-        res = True
-
+    elif not res and multiverse :
+        draw.rect(screen,couleur("GREEN"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
+        ecriture(message,couleur("GREEN"),police_taille,(pos_x,pos_y))
     else :
         draw.rect(screen,couleur("WHITE"),[pos_x-(width/2),pos_y-(height/2),width,height],2,20)
         ecriture(message,couleur("WHITE"),police_taille,(pos_x,pos_y))
     return res
+
 
 def bouton_param_et_info(pos):
     '''
@@ -996,7 +1024,6 @@ def menu_couleur():
     # couleurs au choix fond:
     boutons_choix_couleur((0,0))
     
-
 def boutons_choix_couleur(coord):
     '''
     entrée : les coordonnées de la souris
@@ -1078,11 +1105,11 @@ def menu_cdc3D(numéro):
     draw.rect(screen,couleur_param,[0,0,window_width/2,window_height],0)
     draw.rect(screen,couleur_param,[0,window_height/5+window_height/40-window_height/50,window_width/2, police_taille*1.3])
     if is_float(lines2[1]) and is_float(lines2[2]) and is_float(lines2[3]):
-        S_max = float(lines2[1]) - float(lines2[2]) + float(lines2[3]) 
+        S_min = float(lines2[1]) - float(lines2[2]) + float(lines2[3]) 
     else : 
-        S_max = "non défini"
+        S_min = "non défini"
     ecriture("Rayon de la sphère :",couleur_texte,int(3/5*police_taille),(window_width/4,window_height/5 + window_height/40))
-    ecriture("(S max = "+str(S_max)+")",couleur_texte,int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
+    ecriture("(S min = "+str(S_min)+")",couleur_texte,int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
     ecriture("Saisie des paramètres",couleur_texte,police_taille,(window_width/4,window_height/8))
     ecriture("Rayon du grand cercle",couleur_texte,int(3/5*police_taille),(window_width/4,2*window_height/5+ window_height/40))
     ecriture("(R max = 100)",couleur_texte,int(3/5*police_taille),(window_width/4,2*window_height/5+window_height/40 + window_height/30))
@@ -1285,10 +1312,10 @@ def modifie_rayons3D(lines2,numéro):
         ecriture("Problème valeurs",couleur("RED"),int(police_taille*1.3),(3*window_width/4,window_height/2))
     draw.rect(screen,couleur_param,[0,window_height/5+window_height/40-window_height/50,window_width/2, police_taille*1.3])
     if is_float(lines2[1]) and is_float(lines2[2]) and is_float(lines2[3]):
-        S_max = float(lines2[1]) - float(lines2[2]) + float(lines2[3]) 
-    else : S_max = "non défini"
+        S_min = float(lines2[1]) - float(lines2[2]) + float(lines2[3]) 
+    else : S_min = "non défini"
     ecriture("Rayon de la sphère :",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5 + window_height/40))
-    ecriture("(S max = "+str(S_max)+")",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
+    ecriture("(S min = "+str(S_min)+")",couleur("BLACK"),int(3/5*police_taille),(window_width/4,window_height/5+window_height/40 + window_height/30))
     bouton_gcode((0,0))
 
 def bouton_xy(pos):
@@ -1450,21 +1477,20 @@ def bouge_curseur3D(coord,dragging):
     ecrit3D(num_curseur)
     curseur3D(num_curseur)
 
-
-def rendu3D(r1,r2,p,couleur_rendu,numéro, Rsphere):
+def rendu3D(grand_r,petit_r,p,couleur_rendu,numéro, Rsphere):
     '''
     entrée :
-        r1 : rayon du grand cercle
-        r2 : rayon du petit cercle
+        grand_r : rayon du grand cercle
+        petit_r : rayon du petit cercle
         p : distance entre le centre du petit cercle et le point P
         couleur_rendu : la couleur du rendu
     effet :
         affiche le rendu et le bouton_gcode
     '''
     centre_x, centre_y = 3*window_width/4,window_height/2
-    if not (r1 > window_height/4 or r2 >= r1 or p > r2) : 
-        #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
-        pointss = points3D(6000.0, 10000, r1, r2, p, Rsphere)
+    if not (grand_r > window_height/4 or petit_r >= grand_r or p > petit_r) : 
+        #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),grand_r,1)
+        pointss = points3D(int(lines_nb_tour), 10000, petit_r, grand_r, p, Rsphere)
         if numéro == 1:
             for i,point in enumerate(pointss):
                 point_x, point_y, point_z = point
@@ -1498,8 +1524,8 @@ def rendu3D(r1,r2,p,couleur_rendu,numéro, Rsphere):
 def zoom_rendu3D(lines2, numéro):
     '''
     entrée :
-        r1 : rayon du grand cercle
-        r2 : rayon du petit cercle
+        grand_r : rayon du grand cercle
+        petit_r : rayon du petit cercle
         p : distance entre le centre du petit cercle et le point P
         couleur_rendu : la couleur du rendu
     effet :
@@ -1508,14 +1534,14 @@ def zoom_rendu3D(lines2, numéro):
     global run_zoom_rendu,couleur_g_cercle,couleur_p_cercle,couleur_fond
     if is_float(lines2[0]) and is_float(lines2[1]) and is_float(lines2[2]) and is_float(lines2[3]):
         Rsphere = float(lines2[0])*(window_height/2)/100
-        r1 = float(lines2[1])*(window_height/2)/100
-        r2 = float(lines2[2])*(window_height/2)/100
+        grand_r = float(lines2[1])*(window_height/2)/100
+        petit_r = float(lines2[2])*(window_height/2)/100
         p = float(lines2[3])*(window_height/2)/100
     centre_x, centre_y = window_width/2,window_height/2
-    if not (r1 > window_height/2 or r2 >= r1 or p > r2) : 
+    if not (grand_r > window_height/2 or petit_r >= grand_r or p > petit_r) : 
         screen.fill(couleur_fond)
-        #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),r1,1)
-        pointss= points3D(12000.0, 75000, r1, r2, p, Rsphere)
+        #draw.circle(screen,BLUE,(3*window_width/4,3*window_height/4),grand_r,1)
+        pointss= points3D(int(lines_nb_tour), 75000, petit_r, grand_r, p, Rsphere)
         if numéro == 1:
             for i,point in enumerate(pointss):
                 point_x, point_y, point_z = point
@@ -1529,7 +1555,7 @@ def zoom_rendu3D(lines2, numéro):
     return_arrow((0,0))
 
 def points3D(nb_tour, N, petit_r, grand_r, p,Rsphere) :
-    theta = linspace(0.0, nb_tour, N)
+    theta = linspace(0.0, nb_tour*40, N)
     diff_r = grand_r - petit_r
     q = 1.0 - (grand_r/petit_r) #arrangez vous pour que ce rapport soit différent de 1/2
     res = []
@@ -1574,15 +1600,17 @@ def menu_param_et_info():
     bouton_github((0,0))
     return_arrow((0,0))
     bouton_couleur((0,0))
-    bouton_ede((0,0))
+    bouton_multiverse((0,0))
     bouton_compte_rendu((0,0))
+    champ_nb_tour()
+    ecrit_nb_tour()
 
 def clic_param_et_info(coord):
     '''
     entrée : les coordonnées du clic
     effet : change la couleur selon le clic
     '''
-    global run_param_et_info, run_couleur, run_ede
+    global run_param_et_info, run_couleur, multiverse
     if return_arrow(coord):
         run_param_et_info = False
     if bouton_github(coord):
@@ -1594,8 +1622,8 @@ def clic_param_et_info(coord):
         startfile(presentation_path)
     if bouton_couleur(coord):
         run_couleur = True
-    if bouton_ede(coord):
-        run_ede = True
+    if bouton_multiverse(coord):
+        multiverse = not multiverse
 
 def bouton_github(pos):
     '''
@@ -1683,6 +1711,109 @@ def affiche_logo_github(res,image):
 
     screen.blit(modified_image, (pos_x+3.5*police_taille*3/5,pos_y-police_taille/2+4))
 
+def champ_nb_tour():
+    taille_carac = police_taille*3/5
+    width = taille_carac * 10
+    height = police_taille*1.5
+    couleur_ecriture = couleur("BLACK")
+    draw.rect(screen,couleur("WHITE"),[window_width/2-width/2,9*window_height/10-height/2,width,height])
+    draw.rect(screen,couleur("BLACK"),[window_width/2-width/2,9*window_height/10-height/2,width,height],6)
+    ecriture("nombre de tour",couleur_ecriture,police_taille//2,(window_width/2,77*window_height/80))
+
+def input_to_text_nb_tour(event):
+    '''
+    entrée :
+        evènement PYGAME :
+            - BACKSPACE
+            - RETURN
+            - UP | DOWN | LEFT | RIGHT
+            - TAB
+            - ESCAPE
+            - any letter
+    effet : 
+        Tout ceci n'est pas affiché, la fonction ecrit se charge de l'affichage
+        - BACKSPACE : efface le caractère à gauche du curseur
+        - RETURN : place le curseur à la fin du champ suivant (le 0 quand on est sur le 2)
+        - UP : augmente de 1 la valeur du champ
+        - DOWN : diminue de 1 la valeur du champ
+        - LEFT : déplace le curseur sur la gauche
+        - RIGHT : déplace le curseur sur la droite
+        - TAB : passe au champs suivant ou au champ précédent
+        - ESCAPE : revient au menu précédent (met run_cdc à False)
+        - any letter : écrit la touche qu'on vient de taper
+    '''
+    global cursor_position, key_press_times, run_param_et_info, lines_nb_tour
+    taille_carac = 3/5 * police_taille
+    keys = key.get_pressed()
+    longueur_current_line = len(lines_nb_tour) 
+
+    if event.key == K_BACKSPACE:
+        # Si Retour arrière est appuyé
+        if longueur_current_line > 0 and cursor_position > 0:
+            if cursor_position == 1 :
+                lines_nb_tour = lines_nb_tour[1:]
+            elif cursor_position == (longueur_current_line) :
+                lines_nb_tour = lines_nb_tour[:-1]
+            else :
+                lines_nb_tour = lines_nb_tour[:(cursor_position-1)] + lines_nb_tour[(cursor_position):]  # Supprime le dernier caractère
+            cursor_position -= 1
+    elif event.key == K_ESCAPE:
+        run_param_et_info = False
+    elif event.key == K_UP :
+        if is_float(lines_nb_tour) and int(float(lines_nb_tour)) < 100:
+            lines_nb_tour = str(int(float(lines_nb_tour)) + 1)
+            cursor_position = len(lines_nb_tour)
+    elif event.key == K_DOWN :
+        if is_float(lines_nb_tour) and int(float(lines_nb_tour)) > 0:
+            lines_nb_tour = str(int(float(lines_nb_tour)) - 1)
+            cursor_position = len(lines_nb_tour)
+    elif event.key == K_RIGHT:
+        #si on appuie sur la flèche de droite, le curseur se déplace d'une lettre
+        if cursor_position < (longueur_current_line):
+            cursor_position += 1
+    elif event.key == K_LEFT:
+        #si on appuie sur la flèche de gauche, le curseur se déplace d'une lettre
+        if cursor_position > 0:
+            cursor_position -=1
+    else:
+        # Autres touches
+        if longueur_current_line <= character_limit:
+        # Ajouter le caractère à la ligne actuelle
+            letter = event.unicode
+            if letter:  # Si la touche produit un caractère (ignore Shift, Ctrl, etc.)
+                if cursor_position == 0:
+                    lines_nb_tour = letter + lines_nb_tour
+                elif cursor_position < (longueur_current_line):
+                    lines_nb_tour = lines_nb_tour[:(cursor_position)] + letter + lines_nb_tour[(cursor_position):]
+                else: 
+                    lines_nb_tour += letter
+                cursor_position += 1
+
+def ecrit_nb_tour():
+    '''
+    entrée :
+        num_champ : numéro du champ
+    effet :
+        met à jour le contenu du champ nb tour
+    '''
+    global cursor_position, lines_nb_tour
+    taille_carac = 3/5 * police_taille
+
+    width = taille_carac * 10
+    height = police_taille*1.2
+    current_line1_y = 9*window_height/10 - height/2
+    current_line_x = window_width/2 - width/2
+    spacing = 1/5*police_taille #marge gauche
+    taille_carac = 3/5 * police_taille
+    indent_x,indent_y = current_line_x + spacing,current_line1_y # position
+    champ_nb_tour()
+    # Rendre et afficher chaque ligne de texte
+    txt_surf = police.render(lines_nb_tour, True, couleur("BLACK"))
+    screen.blit(txt_surf, (indent_x, indent_y))
+    draw.rect(screen,couleur("BLACK"),[current_line_x + cursor_position * taille_carac + taille_carac/4,current_line1_y+ 0.15*window_height/15,2,0.7*window_height/15],0)
+    display.update()
+
+
 
 #fonctions pour le menu G CODE :
 
@@ -1692,26 +1823,40 @@ def points_3d (tour_max, N, petit_r, grand_r, p, Rsphere, nb_couches, ep_couches
     retourne la liste des points en 3D de coordonée z fixe égale à 0 si Rsphere = 0
     '''
   
-    theta = linspace(0.0, tour_max, N)
+    theta = linspace(0.0, tour_max*40, N)
     diff_r = grand_r - petit_r
     q = 1.0 - (grand_r/petit_r) #arrangez vous pour que ce rapport soit différent de 1/2
     max_dist = diff_r + p
     res = []
+    alterne = True
     for j in range (nb_couches) :
-        if (Rsphere == 0) :
+        if (Rsphere == 0) and alterne :
             for i in range (N) :
                 new_x = diff_r*cos(theta[i]/(2*pi)) + p * cos(q*theta[i]/(2*pi))
                 new_y = diff_r*sin(theta[i]/(2*pi)) + p * sin(q*theta[i]/(2*pi))
-                z = j*ep_couches
+                z = (j+1)*ep_couches
+                res.append((new_x, new_y, z))
+        elif Rsphere == 0 :
+            for i in range (N) :
+                new_x = diff_r*cos(theta[N-1-i]/(2*pi)) + p * cos(q*theta[N-1-i]/(2*pi))
+                new_y = diff_r*sin(theta[N-1-i]/(2*pi)) + p * sin(q*theta[N-1-i]/(2*pi))
+                z = (j+1)*ep_couches
+                res.append((new_x, new_y, z))
+        elif (max_dist<=Rsphere) and alterne :
+            for i in range (N) :
+                new_x = diff_r*cos(theta[i]/(2*pi)) + p * cos(q*theta[i]/(2*pi))
+                new_y = diff_r*sin(theta[i]/(2*pi)) + p * sin(q*theta[i]/(2*pi))
+                z = sqrt(Rsphere*Rsphere - new_x*new_x - new_y*new_y) - sqrt (Rsphere*Rsphere - max_dist*max_dist) + (j+1)*ep_couches
                 res.append((new_x, new_y, z))
         elif (max_dist<=Rsphere) :
             for i in range (N) :
-                new_x = diff_r*cos(theta[i]/(2*pi)) + p * cos(q*theta[i]/(2*pi))
-                new_y = diff_r*sin(theta[i]/(2*pi)) + p * sin(q*theta[i]/(2*pi))
-                z = sqrt(Rsphere*Rsphere - new_x*new_x - new_y*new_y) - sqrt (Rsphere*Rsphere - max_dist*max_dist) + j*ep_couches
+                new_x = diff_r*cos(theta[N-1-i]/(2*pi)) + p * cos(q*theta[N-1-i]/(2*pi))
+                new_y = diff_r*sin(theta[N-1-i]/(2*pi)) + p * sin(q*theta[N-1-i]/(2*pi))
+                z = sqrt(Rsphere*Rsphere - new_x*new_x - new_y*new_y) - sqrt (Rsphere*Rsphere - max_dist*max_dist) + (j+1)*ep_couches
                 res.append((new_x, new_y, z))
         else:
             ecriture("Rsphere trop petit",couleur("RED"),int(police_taille*1.3),(3*window_width/4,window_height/2))
+        alterne = not alterne
     return res
 
 def generate_gcode_points(points,vitesse, extrusion_rate=0.05, layer_height=0.2):
@@ -1722,20 +1867,24 @@ def generate_gcode_points(points,vitesse, extrusion_rate=0.05, layer_height=0.2)
     gcode.append("G90 ; Mode de positionnement absolu")
     gcode.append("G28 ; Aller à l'origine")
     gcode.append("G92 E0 ; Réinitialiser l'extrusion")
-    v = float(vitesse)
-    gcode.append(f"G1 Z0.2 F{v:.6f} ; Début à la hauteur de couche initiale")
+    v = int(vitesse)
+    gcode.append(f"G1 Z0.2 F{v} ; Début à la hauteur de couche initiale")
     extrusion = 0
+    print("le point 5 dans generate :",points[5])
     for i, point in enumerate(points):
         x, y, z = point
         if i == 0:
             gcode.append(f"G0 X{x:.6f} Y{y:.6f} Z{z:.6f} ; Déplacement initial")
-        else:
+        else:               
             distance = ((points[i][0] - points[i - 1][0]) ** 2 +
                         (points[i][1] - points[i - 1][1]) ** 2 +
                         (points[i][2] - points[i - 1][2]) ** 2) ** 0.5
             extrusion += distance * extrusion_rate
             gcode.append(f"G1 X{x:.6f} Y{y:.6f} Z{z:.6f} E{extrusion:.4f}")
-    gcode.append(f"G1 E-1 F{v:.6f} ; Rétractation")
+    
+
+    
+    gcode.append(f"G1 E-1 F{v} ; Rétractation")
     gcode.append("G28 ; Retour à l'origine")
     gcode.append("M104 S0 ; Arrêt de l'extrudeur")
     gcode.append("M140 S0 ; Arrêt du plateau")
@@ -1743,12 +1892,18 @@ def generate_gcode_points(points,vitesse, extrusion_rate=0.05, layer_height=0.2)
     return "\n".join(gcode)
 
 def write_gcode (nb_tours, N, petit_r, grand_r, p, Rsphere, nb_couches, ep_couches) :
+    modifie_valeurs(lines3)
     if run_cdc:
-        pointss = points(nb_tours,N, petit_r, grand_r, p)
+        Rsphere = 0
+
+    if multiverse :
+        pointss = points_3d(int(lines_nb_tour),N, grand_r, petit_r, p, Rsphere,nb_couches,ep_couches)
     else :
-        pointss = points3D(nb_tours,N, petit_r, grand_r, p, Rsphere)
-    gcode = generate_gcode_points (pointss,int(lines3[0]))
-    vitesse = float(lines3[0])
+        pointss = points_3d(int(lines_nb_tour),N, petit_r, grand_r, p, Rsphere,nb_couches,ep_couches)
+
+    
+    gcode = generate_gcode_points(pointss,int(lines3[0]))
+    vitesse = int(lines3[0])
     if (Rsphere>=(grand_r - petit_r + p)) :
         gcode_name = f"{vitesse:.0f}_{N}_{petit_r:.0f}_{grand_r:.0f}_{p:.0f}_{Rsphere:.0f}_{nb_couches}_{1000*ep_couches:.0f}.gcode"
     elif (Rsphere==0) :
@@ -1846,7 +2001,7 @@ def champ_gcode(num_champ):
     if num_champ == 3 :
         ecriture ("epaisseur (micrometres)", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
     if num_champ == 4 :
-        ecriture ("rayon grand cercle (cm)", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
+        ecriture ("rayon grand cercle (mm)", couleur("WHITE"), int(police_taille_valeurs_champs/3), (x_texte, y_texte))
     draw.rect(screen,couleur("WHITE"),[x_champ,y_champ,width,height])
     draw.rect(screen,couleur("BLACK"),[x_champ,y_champ,width,height],6)
     draw.rect(screen,couleur("WHITE"),[x_champ,y_champ,width,height],2)
@@ -1859,7 +2014,7 @@ def input_to_text_g_code(event):
 
     if event.key == K_BACKSPACE:
         # Si Retour arrière est appuyé
-        if longueur_current_line > 1 and cursor_position > 0:
+        if longueur_current_line > 0 and cursor_position >= 0:
             if cursor_position == 1 :
                 lines3[current_line] = lines3[current_line][1:]
             elif cursor_position == (longueur_current_line) :
@@ -1909,6 +2064,7 @@ def ecrit_champ_gcode(num_champ):
     '''
     global police_taille_valeurs_champs
     current_line_y = 25*window_height/32
+    taille_curseur = 0.7*window_height/15
     current_line_x = window_width/2 + (num_champ - 2.5)*1.1*window_width/8
     spacing = 1/5*police_taille_valeurs_champs #marge gauche
     taille_carac = 3/5 * police_taille_valeurs_champs
@@ -1921,15 +2077,21 @@ def ecrit_champ_gcode(num_champ):
     display.update()
 
 def modifie_valeurs(lines3):
-    global theta_max, N, grand_r, petit_r, Rsphere, nb_couches, ep_couches, p
+    global vitesse, theta_max, N, grand_r, petit_r, Rsphere, nb_couches, ep_couches, p
     theta_max = 10000
-    N = int(lines3[1])
-    nb_couches = int(lines3[2])
-    ep_couches = float(lines3[3])/1000
-    grand_r = float(lines3[4])
-    petit_r = float(int(round((rapport_petit_r*grand_r), 0)))
-    p = float(int(round((rapport_p*grand_r), 0)))
-    Rsphere = float(int(round((rapport_rsphere*grand_r), 0)))
+    if is_int(lines[0]):
+        vitesse = int(lines3[0])
+    if is_int(lines3[1]):
+        N = int(lines3[1])
+    if is_int(lines3[2]):
+        nb_couches = int(lines3[2])
+    if is_float(lines3[3]):
+        ep_couches = float(lines3[3])/1000
+    if is_float(lines3[4]):
+        grand_r = float(lines3[4])
+        petit_r = float((rapport_petit_r*grand_r))
+        p = float((rapport_p*grand_r))
+        Rsphere = float((rapport_rsphere*grand_r))
 
 def bouton_sauvegarde(pos):
     '''
@@ -1990,6 +2152,7 @@ def bouton_annulation(pos):
 
 def menu_g_code_init(lines3):
     screen.fill(couleur_param)
+    modifie_valeurs(lines3)
     i = 1
     if couleur_param == couleur("BLACK") or couleur_param == couleur("VIOLET_FONCE") or couleur_param == couleur("BLEU_FONCE") :
         couleur_ecriture = couleur("WHITE")
@@ -1998,28 +2161,22 @@ def menu_g_code_init(lines3):
     ecriture("Vous vous appretez à sauvegarder un fichier gcode" , couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     ecriture("généré selon les paramètres suivants" , couleur_ecriture, police_taille_infos, (window_width/2, (2*i+1)*window_height/24))
     i = i+1.5
-    ecriture("vitesse de " + str(int(lines3[0])), couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("vitesse de " + str(vitesse), couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
-    if N<=1 :
-        ecriture("Motif de " + str(N) + " point", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
-    elif N>1 :
-        ecriture("Motif de " + str(N) + " points", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("Motif de " + str(N) + " points", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
-    if nb_couches == 1 :
-        ecriture("une couche d'epaisseur " + str(ep_couches) + " mm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
-    elif (nb_couches >= 2) :
-        ecriture(str(nb_couches) + " couches d'epaisseur " + str(ep_couches) + " mm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture(str(nb_couches) + " couches d'epaisseur " + str(ep_couches) + " mm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
-    ecriture("rayon du grand cercle égal à " + str(float(grand_r)) + " cm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("rayon du grand cercle égal à " + str(grand_r) + " mm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
-    ecriture("rayon du petit cercle égal à " + str(float(petit_r)) + " cm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("rayon du petit cercle égal à " + str(float(petit_r)) + " mm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
-    ecriture("stylo posé à " + str(float(p)/10) + " cm du centre du petit cercle", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
+    ecriture("stylo posé à " + str(float(p)) + " mm du centre du petit cercle", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     i = i+1
     if Rsphere == 0 :
         ecriture("à plat", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
     elif (Rsphere >= (grand_r-petit_r+p)) :
-        ecriture("motif posé sur une sphere de rayon " + str(float(Rsphere)) + " cm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
+        ecriture("motif posé sur une sphere de rayon " + str(float(Rsphere)) + " mm", couleur_ecriture, police_taille_infos, (window_width/2, i*window_height/12))
 
     bouton_sauvegarde ((0, 0))
     bouton_annulation ((0, 0))
@@ -2030,19 +2187,6 @@ def menu_g_code_init(lines3):
     ecrit_champ_gcode (3)
     ecrit_champ_gcode (4)
     display.flip()
-
-
-# fonctoins pour le menu Ellipse dans Ellipse :
-
-def menu_ede():
-    screen.fill(couleur_fond)
-
-    return_arrow((0,0))
-
-def clic_ede(coord):
-    global run_ede
-    if return_arrow(coord):
-        run_ede = False
 
 
 ## affichage
@@ -2078,22 +2222,15 @@ police_taille_valeurs_champs = int(window_height/22)
 police_taille_infos = int(window_height/36)
 
 # variables globales G CODE
-theta_max = 10000
-vitesse = 600
-N = 100000
-petit_r = 40
-grand_r = 100
-p = 40
-Rsphere = 175
-nb_couches = 4
-ep_couches = 1
-lines3 = [str(int(vitesse)), str(N), str(nb_couches), str(1000*ep_couches), str(grand_r)]
-rapport_rsphere = float(Rsphere)/float(grand_r)
-rapport_petit_r = float(petit_r)/float(grand_r)
-rapport_p = float(p)/float(grand_r)
+
+petit_r = 0
+p = 0
+Rsphere = 0
+grand_r = 0
+rapport_rsphere = 0
+rapport_petit_r = 0
+rapport_p = 0
 character_limit_gcode = 7
-
-
 current_line = 0  # Index de la ligne courante
 couleur_g_cercle = couleur("RED")
 couleur_p_cercle = couleur("BLEU_FONCE")
@@ -2101,24 +2238,29 @@ couleur_p_cercle = couleur("BLEU_FONCE")
 # Set les couleurs et valeurs rempli lors de la dernière utilisation
 
 try:
-  with open(fichier_json, "r") as file:
-      data = load(file)
-      
-      #on récupère les données
-      couleur_param_str = data.get("couleur_param", "(255,255,255)")  # Valeur par défaut 0 si "x" n'existe pas
-      couleur_fond_str = data.get("couleur_fond", "(153, 204, 255)")  # Valeur par défaut 0 si "x" n'existe pas
-      couleur_rendu_str = data.get("couleur_rendu", "(169, 184, 204)")  # Valeur par défaut 0 si "x" n'existe pas
-      lines_str = data.get("lines","['75','40','20']")
-      lines2_str = data.get("lines2","['80', '60', '40', '20']")
-      cursor_position_str = data.get("cursor_position","2")
+    with open(fichier_json, "r") as file:
+        data = load(file)
+        
+        #on récupère les données
+        couleur_param_str = data.get("couleur_param", "(255,255,255)")  # Valeur par défaut 0 si "x" n'existe pas
+        couleur_fond_str = data.get("couleur_fond", "(153, 204, 255)")  # Valeur par défaut 0 si "x" n'existe pas
+        couleur_rendu_str = data.get("couleur_rendu", "(169, 184, 204)")  # Valeur par défaut 0 si "x" n'existe pas
+        lines_str = data.get("lines","['75','40','20']")
+        lines2_str = data.get("lines2","['80', '60', '40', '20']")
+        lines3_str = data.get("lines3","['600','10000','4','1000','10']")
+        cursor_position_str = data.get("cursor_position","2")
+        multiverse_str = data.get("multiverse","False")
+        lines_nb_tour = data.get("nb_tour","5000")
 
-      # on les convertis
-      couleur_param = eval(couleur_param_str)
-      couleur_fond = eval(couleur_fond_str)
-      couleur_rendu = eval(couleur_rendu_str)
-      lines = eval(lines_str)
-      lines2 = eval(lines2_str)
-      cursor_position = eval(cursor_position_str)
+        # on les convertis
+        couleur_param = eval(couleur_param_str)
+        couleur_fond = eval(couleur_fond_str)
+        couleur_rendu = eval(couleur_rendu_str)
+        lines = eval(lines_str)
+        lines2 = eval(lines2_str)
+        lines3 = eval(lines3_str)
+        cursor_position = eval(cursor_position_str)
+        multiverse = eval(multiverse_str)
 
 except FileNotFoundError:
     couleur_rendu = (255,255,255)
@@ -2126,7 +2268,18 @@ except FileNotFoundError:
     couleur_param = couleur("BLEU_JOLI")
     lines = ['75','40','20']  # Liste des lignes de texte
     lines2 = ['80', '60', '40', '20'] # Liste des lignes de texte pour 3D
+    lines3 = ['600','10000','4','1000','5']
     cursor_position = 2
+    vitesse = 600
+    N = 100000
+    nb_couches = 4
+    ep_couches = 1
+    grand_r = 100
+    multiverse = False
+    lines_nb_tour = "5000"
+
+modifie_valeurs(lines3)
+
 
 
 
@@ -2142,7 +2295,7 @@ run_cdc3D = False
 run_param_et_info = False
 numéro = 2
 run_g_code = False
-run_ede = False
+
 
 menu_choix()
 
@@ -2178,6 +2331,8 @@ while run :
                                     run_zoom_schema = False
                                     menu_cercle_dans_cercle_init(lines)
                                     ecrit(current_line)
+                                if pyEvent.type == MOUSEMOTION :
+                                    return_arrow(pyEvent.pos)
                             display.flip() #mettre à jour l'affichage
                         if run_zoom_rendu:
                             zoom_rendu(lines)
@@ -2195,7 +2350,6 @@ while run :
                                     return_arrow(pyEvent.pos)
                             display.flip() #mettre à jour l'affichage
                         if run_g_code: 
-                            lines3 = [str(int(vitesse)), str(N), str(nb_couches), str(1000*ep_couches), str(lines[0])]
                             rapport_rsphere = 0 # float(Rsphere)/float(grand_r)
                             rapport_petit_r = float(lines[1])/float(lines[0])
                             rapport_p = float(lines[2])/float(lines[0])
@@ -2253,7 +2407,7 @@ while run :
                             zoom_rendu3D(lines2, numéro)
                             for pyEvent in event.get():
                                 if pyEvent.type == QUIT :
-                                    run_cdc = False
+                                    run_cdc3D = False
                                     run_zoom_rendu = False 
                                     run = False
                                 if pyEvent.type == MOUSEBUTTONDOWN :
@@ -2262,10 +2416,8 @@ while run :
                                     ecrit3D(current_line)
                                 if pyEvent.type == MOUSEMOTION :
                                     return_arrow(pyEvent.pos)
-                                    bouton_gcode(pyEvent.pos)
                             display.flip() #mettre à jour l'affichage
                         if run_g_code: 
-                            lines3 = [str(int(vitesse)), str(N), str(nb_couches), str(1000*ep_couches), str(lines2[1])]
                             rapport_rsphere = float(lines2[0])/float(lines2[1])
                             rapport_petit_r = float(lines2[2])/float(lines2[1])
                             rapport_p = float(lines2[3])/float(lines2[1])
@@ -2307,10 +2459,13 @@ while run :
                     if pyEvent.type == QUIT:
                         run = False
                         run_param_et_info = False
+                    if pyEvent.type == KEYDOWN:
+                        input_to_text_nb_tour(pyEvent)  # Appel à la fonction pour gérer l'input
+                        ecrit_nb_tour()
                     if pyEvent.type == MOUSEMOTION :
                         return_arrow(pyEvent.pos)
                         bouton_couleur(pyEvent.pos)
-                        bouton_ede(pyEvent.pos)
+                        bouton_multiverse(pyEvent.pos)
                         bouton_github(pyEvent.pos)
                         bouton_compte_rendu(pyEvent.pos)
                     if pyEvent.type == MOUSEBUTTONDOWN :
@@ -2329,19 +2484,6 @@ while run :
                                 if pyEvent.type == MOUSEBUTTONDOWN :
                                     clic_couleur(pyEvent.pos)
                             display.flip()
-                        if run_ede :
-                            menu_ede()
-                        while run_ede:
-                            for pyEvent in event.get():
-                                if pyEvent.type == QUIT:
-                                    run = False
-                                    run_param_et_info = False
-                                    run_couleur = False
-                                if pyEvent.type == MOUSEMOTION :
-                                    return_arrow(pyEvent.pos)
-                                if pyEvent.type == MOUSEBUTTONDOWN :
-                                    clic_ede(pyEvent.pos)
-                            display.flip()
                         menu_param_et_info()
                 display.flip()
             menu_choix()
@@ -2356,9 +2498,11 @@ data = {
     "couleur_rendu": str(couleur_rendu),
     "lines" : str(lines),
     "lines2" : str(lines2),
-    "cursor_position" : str(cursor_position)
+    "lines3" : str(lines3),
+    "cursor_position" : str(cursor_position),
+    "multiverse" : str(multiverse),
+    "nb_tour" : lines_nb_tour
     }
-
 
 # Écrire les données dans le fichier JSON
 with open(fichier_json, "w") as file:
@@ -2372,5 +2516,5 @@ quit()
 
 # commande pour convertir le fichier python en fichier .exe :
 
-        # pyinstaller --onefile --add-data "ressources/data.json;ressources" --add-data "ressources/github.png;ressources" --add-data "ressources/sphere.png;ressources" --add-data "ressources/project_tech_spirographe_4.pdf;ressources" "C:/Users/antoi/Documents_local/dossier_mines_st_etienne/cours/protech/code/logiciel spirographe.py"
+        # pyinstaller --onefile --add-data "ressources/github.png;ressources" --add-data "ressources/sphere.png;ressources" --add-data "ressources/project_tech__spirographe-4.pdf;ressources" "C:/Users/antoi/Documents_local/dossier_mines_st_etienne/cours/protech/code/logiciel spirographe.py"
   
